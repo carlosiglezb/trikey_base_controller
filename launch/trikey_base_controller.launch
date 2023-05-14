@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- load house world -->
+<!--  <include file="$(find trikey_gazebo)/launch/house.launch" />-->
+
+  <!-- load base controller configuration file to parameter server -->
+  <rosparam file="$(find trikey_base_controller)/config/base_controller.yaml" command="load"/>
+
+  <!-- load controllers (TODO check namespace)
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false"
+   output="screen" ns="/trikey" args="-stopped base_controller
+                                      wheel0_effort_controller
+                                      wheel1_effort_controller
+                                      wheel2_effort_controller"/>
+
+  <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/trikey" args="joint_state_controller"/>
+  -->
+
+  <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/trikey" args="base_controller"/>
+
+
+  <!-- Launch RViz for visualization -->
+  <node name="rviz" pkg="rviz" type="rviz"
+    args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" />
+
+  <!---->
+<!--    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >-->
+<!--    <remap from="/joint_states" to="/trikey/joint_states" />-->
+<!--    </node>-->
+
+  <node name="robot_state_publisher2" pkg="robot_state_publisher" type="robot_state_publisher"
+    respawn="false" output="screen">
+    <remap from="/joint_states" to="/trikey/joint_states" />
+  </node>
+
+</launch>

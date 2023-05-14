@@ -1,0 +1,5 @@
+<library path="lib/libtrikey_base_controller_lib">
+    <class name="trikey_base_controller/TrikeyBaseController"
+           type="trikey_base_controller::TrikeyBaseController"
+           base_class_type="controller_interface::ControllerBase" />
+</library>

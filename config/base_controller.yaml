@@ -1,0 +1,96 @@
+trikey:
+  # Base Velocity Controller ---------------------------------------
+  base_controller:
+    type: trikey_base_controller/TrikeyBaseController
+    joint_names: [ "wheel0_joint", "wheel1_joint", "wheel2_joint" ]
+    kp_vel_gain: 2.5
+#    damping_gain: 0.0       # this creates a steady state error
+    vel_filter_tau: 0.15    # the higher this value is, the higher the overshot
+
+  # Kinematic Parameters ---------------------------------------
+  kinematic_properties:
+    wheel_radius: 0.098   # [m]
+    wheel_to_chassis_center: 0.272 # [m]
+
+  #  gazebo_ros_control/pid_gains:
+  #    wheel0_joint: { p: 10.0, i: 0.0, d: 5.0 }
+  #    wheel1_joint: { p: 10.0, i: 0.0, d: 5.0 }
+  #    wheel2_joint: { p: 10.0, i: 0.0, d: 5.0 }
+
+  # Odometry
+  odom_frame: "odom"
+  base_frame: "base_link"
+
+  # Publish all joint states -----------------------------------
+#  joint_state_controller:
+#    type: joint_state_controller/JointStateController
+#    publish_rate: 1000
+#    extra_joints:
+#      - name: 'roller_w0_0'
+#      - name: 'roller_w0_1'
+#      - name: 'roller_w0_2'
+#      - name: 'roller_w0_3'
+#      - name: 'roller_w0_4'
+#      - name: 'roller_w0_5'
+#      - name: 'roller_w0_6'
+#      - name: 'roller_w0_7'
+#      - name: 'roller_w0_8'
+#      - name: 'roller_w0_9'
+#      - name: 'roller_w0_10'
+#      - name: 'roller_w0_11'
+#      - name: 'roller_w0_12'
+#      - name: 'roller_w0_13'
+#      - name: 'roller_w0_14'
+#      - name: 'roller_w0_15'
+#      - name: 'roller_w0_16'
+#      - name: 'roller_w0_17'
+#      - name: 'roller_w1_0'
+#      - name: 'roller_w1_1'
+#      - name: 'roller_w1_2'
+#      - name: 'roller_w1_3'
+#      - name: 'roller_w1_4'
+#      - name: 'roller_w1_5'
+#      - name: 'roller_w1_6'
+#      - name: 'roller_w1_7'
+#      - name: 'roller_w1_8'
+#      - name: 'roller_w1_9'
+#      - name: 'roller_w1_10'
+#      - name: 'roller_w1_11'
+#      - name: 'roller_w1_12'
+#      - name: 'roller_w1_13'
+#      - name: 'roller_w1_14'
+#      - name: 'roller_w1_15'
+#      - name: 'roller_w1_16'
+#      - name: 'roller_w1_17'
+#      - name: 'roller_w2_0'
+#      - name: 'roller_w2_1'
+#      - name: 'roller_w2_2'
+#      - name: 'roller_w2_3'
+#      - name: 'roller_w2_4'
+#      - name: 'roller_w2_5'
+#      - name: 'roller_w2_6'
+#      - name: 'roller_w2_7'
+#      - name: 'roller_w2_8'
+#      - name: 'roller_w2_9'
+#      - name: 'roller_w2_10'
+#      - name: 'roller_w2_11'
+#      - name: 'roller_w2_12'
+#      - name: 'roller_w2_13'
+#      - name: 'roller_w2_14'
+#      - name: 'roller_w2_15'
+#      - name: 'roller_w2_16'
+#      - name: 'roller_w2_17'
+
+  # Position Controllers ---------------------------------------
+#  wheel0_effort_controller:
+#    type: effort_controllers/JointEffortController
+#    joint: wheel0_joint
+#    pid: { p: 100.0, i: 0.01, d: 10.0 }
+#  wheel1_effort_controller:
+#    type: effort_controllers/JointEffortController
+#    joint: wheel1_joint
+#    pid: { p: 100.0, i: 0.01, d: 10.0 }
+#  wheel2_effort_controller:
+#    type: effort_controllers/JointEffortController
+#    joint: wheel2_joint
+#    pid: { p: 100.0, i: 0.01, d: 10.0 }
