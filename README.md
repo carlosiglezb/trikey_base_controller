@@ -1,29 +1,20 @@
-# README #
+# Bumpybot Base Controller
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This repository contains our implementation of a 
+[ros-controller](https://github.com/ros-controls/ros_controllers) 
+for the omniwheel robot Bumpybot. It takes as inputs a _twist_ in the form of the 
+conventional `cmd_vel` and computes the torques at each wheel to achieve the
+desired motion. Currently, this approach
+uses only kinematics of the robot and a simple proportional controller.
 
-### What is this repository for? ###
+This also includes an RViz plugin to do simple online tuning of the controller. 
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+# How to use
 
-### How do I get set up? ###
+If running as a stand-alone package, clone into your catkin workspace source directory, e.g.,
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+```
+~ /catkin_ws/src $ git clone https://github.com/carlosiglezb/trikey_base_controller.git
+```
 
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+and change the `config/base_controller.yaml` according to your robot's parameters and link names. 
