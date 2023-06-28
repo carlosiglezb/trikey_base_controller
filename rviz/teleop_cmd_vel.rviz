@@ -28,7 +28,7 @@ Panels:
     Name: Time
     SyncMode: 0
     SyncSource: ""
-  - Class: trikey_teleop/CmdVelTeleop
+  - Class: bumpybot_teleop/CmdVelTeleop
     Name: CmdVelTeleop
     Topic: /trikey/base_controller/cmd_vel
 Preferences:

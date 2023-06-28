@@ -26,13 +26,13 @@ Panels:
     Name: Time
     SyncMode: 0
     SyncSource: LaserScan
-  - Class: trikey_teleop/CmdVelTeleop
+  - Class: bumpybot_teleop/CmdVelTeleop
     Name: CmdVelTeleop
     Topic: /trikey/base_controller/cmd_vel
-  - Class: trikey_teleop/Teleop
+  - Class: bumpybot_teleop/Teleop
     Name: Teleop
     Topic: /trikey/base_controller/
-  - Class: trikey_teleop/Teleop
+  - Class: bumpybot_teleop/Teleop
     Name: Teleop
     Topic: ""
 Preferences:

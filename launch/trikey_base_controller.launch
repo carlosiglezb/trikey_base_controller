@@ -22,8 +22,8 @@
 
 
   <!-- Launch RViz for visualization -->
-  <node name="rviz" pkg="rviz" type="rviz"
-    args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" />
+  <!-- <node name="rviz" pkg="rviz" type="rviz"
+    args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" /> -->
 
   <!---->
 <!--    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >-->
