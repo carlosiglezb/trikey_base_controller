@@ -25,7 +25,7 @@
   <!-- <node name="rviz" pkg="rviz" type="rviz"
     args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" /> -->
 
-  <!---->
+  <!--  Joint states through gazebo. Do not use on the real robot -->
   <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
     <remap from="/joint_states" to="/trikey/joint_states" />
   </node> -->
