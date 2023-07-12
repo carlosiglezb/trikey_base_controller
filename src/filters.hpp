@@ -5,7 +5,7 @@
 #ifndef SRC_FILTERS_HPP
 #define SRC_FILTERS_HPP
 
-#include <Eigen/Dense>
+#include <eigen3/Eigen/Dense>
 
 /// class ExponentialMovingAverageFilter
 // https://github.com/stephane-caron/lipm_walking_controller/blob/29b3583e3be91ed6336df25434b6baea1fc9f650/include/lipm_walking/utils/ExponentialMovingAverage.h
