@@ -18,3 +18,7 @@ If running as a stand-alone package, clone into your catkin workspace source dir
 ```
 
 and change the `config/base_controller.yaml` according to your robot's parameters and link names. 
+
+
+### Note
+`CMake/FindEigen3` hints at the eigen3 location already but may not work on your installation. If it doesn't work check the readme of Trikey Base Controller for instructions.

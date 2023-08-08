@@ -18,8 +18,8 @@ find_package(catkin REQUIRED COMPONENTS
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
 
-find_package(Eigen3 REQUIRED)
-include_directories(${EIGEN_INCLUDE_DIRS})
+find_package(Eigen3 REQUIRED HINTS /usr/include/eigen3/Eigen)
+include_directories(${EIGEN3_INCLUDE_DIRS})
 
 catkin_package(
   INCLUDE_DIRS src
