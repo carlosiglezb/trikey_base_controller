@@ -137,7 +137,7 @@ namespace trikey_base_controller
         kp_vel_sub_ = nh.subscribe("/trikey/base_controller/kp_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
         vel_filter_sub_ = nh.subscribe("/trikey/base_controller/vel_filter_tau", 1, &TrikeyBaseController::cmdVelFilterCallback, this);
         //TODO remove ground truth subscriber and compute and publish estimate
-        // ground_truth_sub_ = nh.subscribe("/trikey/ground_truth", 1, &TrikeyBaseController::odometryCallback, this);
+        ground_truth_sub_ = nh.subscribe("/odom", 1, &TrikeyBaseController::odometryCallback, this);
 //        filt_vel_pub_.init(nh, "/trikey/base_controller/filt_velocities", 5);
 
         ROS_INFO("Finished controller initialization");
@@ -271,7 +271,7 @@ namespace trikey_base_controller
     void TrikeyBaseController::setupOdomPublishers(ros::NodeHandle& nh)
     {
         // Setup odometry realtime publisher + odom message constant fields
-        odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(nh, "/estimated_odom", 100));
+        odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(nh, "/odom", 100));
         odom_pub_->msg_.header.frame_id = odom_frame_;
         odom_pub_->msg_.child_frame_id = base_frame_;
         odom_pub_->msg_.pose.pose.position.z = 0.0;
@@ -290,18 +290,18 @@ namespace trikey_base_controller
     void TrikeyBaseController::updateOdometry(const nav_msgs::Odometry& odometry_)
     {
         // Populate odom message and publish
-        if (odom_pub_->trylock())
-        {
-            odom_pub_->msg_.header.stamp = ros::Time::now();
-            odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
-            odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
-            odom_pub_->msg_.pose.pose.position.z = odometry_.pose.pose.position.z;
-            odom_pub_->msg_.pose.pose.orientation = odometry_.pose.pose.orientation;
-            odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
-            odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
-            odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
-            odom_pub_->unlockAndPublish();
-        }
+        // if (odom_pub_->trylock())
+        // {
+        //     odom_pub_->msg_.header.stamp = ros::Time::now();
+        //     odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
+        //     odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
+        //     odom_pub_->msg_.pose.pose.position.z = odometry_.pose.pose.position.z;
+        //     odom_pub_->msg_.pose.pose.orientation = odometry_.pose.pose.orientation;
+        //     odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
+        //     odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
+        //     odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
+        //     odom_pub_->unlockAndPublish();
+        // }
 
         // Publish tf for base w.r.t. world
         if(tf_odom_pub_->trylock())
