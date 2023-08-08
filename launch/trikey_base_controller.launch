@@ -1,5 +1,12 @@
 <?xml version="1.0" ?>
 <launch>
+  <arg name="real_robot" default="true"/>
+  <arg name="xbox" default="true"/>
+
+  <arg name="joy_config" default="xbox" />
+  <arg name="joy_dev" default="/dev/input/js0" />
+  <arg name="config_filepath" default="$(find bumpybot_teleop)/config/$(arg joy_config).config.yaml" />
+  <arg name="joy_topic" default="joy" />
   <!-- load house world -->
 <!--  <include file="$(find trikey_gazebo)/launch/house.launch" />-->
 
@@ -12,34 +19,50 @@
                                       wheel0_effort_controller
                                       wheel1_effort_controller
                                       wheel2_effort_controller"/>
-
-  <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
-        output="screen" ns="/trikey" args="joint_state_controller"/>
   -->
 
-  <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
-        output="screen" args="/trikey/base_controller"/>
+  <group if="$(arg real_robot)">
+    <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
+      output="screen" args="trikey/base_controller"/>
 
+    <node name="robot_state_publisher2" pkg="robot_state_publisher" type="robot_state_publisher"
+      respawn="false" output="screen">
+      <remap from="/joint_states" to="/joint_states" />
+    </node>  
+  </group>
 
-  <!-- Launch RViz for visualization -->
-  <!-- <node name="rviz" pkg="rviz" type="rviz"
-    args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" /> -->
+  <group unless="$(arg real_robot)">
+      <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" ns="/trikey" args="base_controller"/>  
 
-<<<<<<< HEAD
-  <!--  Joint states through gazebo. Do not use on the real robot -->
-  <!-- <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
-    <remap from="/joint_states" to="/trikey/joint_states" />
-  </node> -->
-=======
-  <!-- Joint states through gazebo. Do not use on the real robot -->
-<!--    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >-->
-<!--    <remap from="/joint_states" to="/trikey/joint_states" />-->
-<!--    </node>-->
->>>>>>> 4291caae8d15265a0ff4fcd50707a5e9df3e32a9
-
-  <node name="robot_state_publisher2" pkg="robot_state_publisher" type="robot_state_publisher"
-    respawn="false" output="screen">
-    <remap from="/joint_states" to="/trikey/joint_states" />
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" >
+      <remap from="/joint_states" to="/trikey/joint_states" />
   </node>
+  </group>
+  
+  <group if="$(arg xbox)">
+    <node pkg="joy" type="joy_node" name="joy_node">
+        <param name="dev" value="$(arg joy_dev)" />
+        <param name="deadzone" value="0.5" />
+        <param name="autorepeat_rate" value="1500" />
+        <param name="coalesce_interval" value="0.0005"/>
+        <remap from="joy" to="$(arg joy_topic)" />
+    </node>
+
+    <node pkg="teleop_twist_joy" name="teleop_twist_joy" type="teleop_node">
+        <rosparam command="load" file="$(arg config_filepath)" />
+        <remap from="joy" to="$(arg joy_topic)" />
+    </node>
+    
+    <node name="velocity_smoother" pkg="bumpybot_teleop" type="velocity_smoother.py">
+
+    </node>
+  </group>
+
+
+  <group unless="$(arg xbox)">
+   <node name="rviz" pkg="rviz" type="rviz"
+    args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" /> 
+  </group>
 
 </launch>

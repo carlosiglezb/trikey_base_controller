@@ -137,7 +137,7 @@ namespace trikey_base_controller
         kp_vel_sub_ = nh.subscribe("/trikey/base_controller/kp_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
         vel_filter_sub_ = nh.subscribe("/trikey/base_controller/vel_filter_tau", 1, &TrikeyBaseController::cmdVelFilterCallback, this);
         //TODO remove ground truth subscriber and compute and publish estimate
-        ground_truth_sub_ = nh.subscribe("/trikey/ground_truth", 1, &TrikeyBaseController::odometryCallback, this);
+        // ground_truth_sub_ = nh.subscribe("/trikey/ground_truth", 1, &TrikeyBaseController::odometryCallback, this);
 //        filt_vel_pub_.init(nh, "/trikey/base_controller/filt_velocities", 5);
 
         ROS_INFO("Finished controller initialization");
