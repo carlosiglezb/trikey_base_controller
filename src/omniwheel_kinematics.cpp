@@ -17,12 +17,12 @@ void OmniwheelKinematics::initialize_H(double wheel_radius, double wheel_to_chas
     H_mat(1, 0) = wheel_to_chassis_center;
     H_mat(2, 0) = wheel_to_chassis_center;
 
-    H_mat(0, 1) = 1.0;
+    H_mat(2, 1) = 1.0;
+    H_mat(0, 1) = -0.5;
     H_mat(1, 1) = -0.5;
-    H_mat(2, 1) = -0.5;
 
-    H_mat(1,2) = -sin(4.*M_PI/3.0);
-    H_mat(2,2) = sin(4.*M_PI/3.0);
+    H_mat(0,2) = -sin(4.*M_PI/3.0);
+    H_mat(1,2) = sin(4.*M_PI/3.0);
 
     H_mat /= -wheel_radius;
 }
