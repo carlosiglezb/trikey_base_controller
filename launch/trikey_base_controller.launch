@@ -65,4 +65,9 @@
     args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" /> 
   </group>
 
+  <node pkg="rtabmap_odom" type="icp_odometry" name="icp_odometry">
+    <param name="odom_frame_id" value="odom"/>
+    <param name="frame_id" value="base_link"/>
+  </node>
+
 </launch>
