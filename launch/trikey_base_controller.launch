@@ -21,7 +21,14 @@
                                       wheel2_effort_controller"/>
   -->
 
+
   <group if="$(arg real_robot)">
+
+  <node pkg="rtabmap_odom" type="icp_odometry" name="icp_odometry">
+    <param name="odom_frame_id" value="odom"/>
+    <param name="frame_id" value="base_link"/>
+  </node>
+  
     <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
       output="screen" args="trikey/base_controller"/>
 
@@ -65,9 +72,5 @@
     args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" /> 
   </group>
 
-  <node pkg="rtabmap_odom" type="icp_odometry" name="icp_odometry">
-    <param name="odom_frame_id" value="odom"/>
-    <param name="frame_id" value="base_link"/>
-  </node>
 
 </launch>
