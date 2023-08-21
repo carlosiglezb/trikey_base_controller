@@ -33,4 +33,23 @@ private:
     Eigen::VectorXd max_crop_;
 };
 
+class FirstOrderLowPassFilter {
+public:
+  FirstOrderLowPassFilter(double dt, double period, int dim);
+
+  void Reset();
+
+  void Input(const Eigen::VectorXd &new_val);
+
+  Eigen::VectorXd Output();
+
+private:
+  void _CutOffPeriod(double period);
+
+  Eigen::VectorXd prev_val_;
+  double cut_off_period_ = 0.;
+  double dt_ = 0.005;
+  int dim_ = 3;
+};
+
 #endif //SRC_FILTERS_HPP

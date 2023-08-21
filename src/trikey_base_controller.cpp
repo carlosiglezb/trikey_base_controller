@@ -137,7 +137,7 @@ namespace trikey_base_controller
         kp_vel_sub_ = nh.subscribe("/trikey/base_controller/kp_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
         vel_filter_sub_ = nh.subscribe("/trikey/base_controller/vel_filter_tau", 1, &TrikeyBaseController::cmdVelFilterCallback, this);
         //TODO remove ground truth subscriber and compute and publish estimate
-        ground_truth_sub_ = nh.subscribe("/odom", 1, &TrikeyBaseController::odometryCallback, this);
+        ground_truth_sub_ = nh.subscribe("/filtered_odom", 1, &TrikeyBaseController::odometryCallback, this);
 //        filt_vel_pub_.init(nh, "/trikey/base_controller/filt_velocities", 5);
 
         ROS_INFO("Finished controller initialization");
@@ -270,8 +270,7 @@ namespace trikey_base_controller
 
     void TrikeyBaseController::setupOdomPublishers(ros::NodeHandle& nh)
     {
-        // Setup odometry realtime publisher + odom message constant fields
-        odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(nh, "/odom", 100));
+        odom_pub_.reset(new realtime_tools::RealtimePublisher<nav_msgs::Odometry>(nh, "/filtered_odom", 100));
         odom_pub_->msg_.header.frame_id = odom_frame_;
         odom_pub_->msg_.child_frame_id = base_frame_;
         odom_pub_->msg_.pose.pose.position.z = 0.0;

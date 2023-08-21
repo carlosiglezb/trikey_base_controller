@@ -43,3 +43,23 @@ void ExponentialMovingAverageFilter::resetTimeConstant(double time_constant)
   time_constant_ = T;
   alpha_ = 1. - std::exp(-dt_ / T);
 }
+
+
+FirstOrderLowPassFilter::FirstOrderLowPassFilter(double dt, double period,
+                                                 int dim)
+    : dt_(dt), dim_(dim) {
+  Reset();
+  _CutOffPeriod(period);
+}
+void FirstOrderLowPassFilter::_CutOffPeriod(double period) {
+  period = std::max(period, 2 * dt_); // Nyquist-Shannon sampling theorem
+  cut_off_period_ = period;
+}
+void FirstOrderLowPassFilter::Reset() {
+  prev_val_ = Eigen::VectorXd::Zero(dim_);
+}
+void FirstOrderLowPassFilter::Input(const Eigen::VectorXd &new_val) {
+  double x = (cut_off_period_ <= dt_) ? 1. : dt_ / cut_off_period_;
+  prev_val_ = x * new_val + (1. - x) * prev_val_;
+}
+Eigen::VectorXd FirstOrderLowPassFilter::Output() { return prev_val_; }
