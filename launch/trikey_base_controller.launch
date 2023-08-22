@@ -25,9 +25,9 @@
   <group if="$(arg real_robot)">
 
   <node pkg="rtabmap_odom" type="icp_odometry" name="icp_odometry">
-    <param name="odom_frame_id" value="odom"/>
+    <param name="odom_frame_id" value="odom_icp"/>
     <param name="frame_id" value="base_link"/>
-    <param name="publish_tf" value="false"/>
+    <param name="filter" value="false"/>
   </node>
   
     <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"

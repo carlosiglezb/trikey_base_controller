@@ -40,6 +40,22 @@ add_library(${PROJECT_NAME}_lib
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
 
+
+#############
+## Install ##
+#############
+
+# all install targets should use catkin DESTINATION variables
+# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+
+## Mark executable scripts (Python etc.) for installation
+## in contrast to setup.py, you can choose the destination
+install(PROGRAMS
+  nodes/odom_filter
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+
 #############
 ## Testing ##
 #############
