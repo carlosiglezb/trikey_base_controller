@@ -55,6 +55,7 @@ namespace trikey_base_controller
         Eigen::Vector3d vel_limits;
         vel_limits << 1.5, 1.5, 1.5;
         vel_filter_ = new ExponentialMovingAverageFilter(dt_, vel_filter_tau_, zeros, -vel_limits, vel_limits);
+        odom_filter_ = new FirstOrderLowPassFilter(dt_, 0.1, 3);
     }
 
     TrikeyBaseController::~TrikeyBaseController()
@@ -193,6 +194,7 @@ namespace trikey_base_controller
         updateOdometry(ground_truth_);
 
         // TODO: limit velocities and accelerations
+        
 
         // compute corresponding desired wheel velocities
         computeWheelVelocities(curr_cmd_twist, cmd_wheel_velocities_);
@@ -316,6 +318,11 @@ namespace trikey_base_controller
             tf_odom_pub_->unlockAndPublish();
         }
     }
+
+    void TrikeyBaseController::filterOdometry(const nav_msgs::Odometry& odometry_)
+    {
+        nav_msgs::Odometry filtered_odom;
+    } 
 }
 
 //Register the plugin: PLUGINLIB_EXPORT_CLASS(my_namespace::MyPlugin, base_class_namespace::PluginBaseClass)

@@ -90,6 +90,7 @@ namespace trikey_base_controller
         void setupOdomPublishers(ros::NodeHandle &nh);
         void odometryCallback(const nav_msgs::Odometry& odom);
         void updateOdometry(const nav_msgs::Odometry& odom);
+        void filterOdometry(const nav_msgs::Odometry& odom);
 
     private:
         std::vector<hardware_interface::JointHandle> joints_;
@@ -131,6 +132,11 @@ namespace trikey_base_controller
         std::string base_frame_;
 
         nav_msgs::Odometry ground_truth_;
+        nav_msgs::Odometry previous_odom_;
+
+        FirstOrderLowPassFilter *odom_filter_;
+        double odom_filter_dt_;
+        float lidar_frequency_;
 
     public:
         OmniwheelKinematics *kinematics_calculator;
