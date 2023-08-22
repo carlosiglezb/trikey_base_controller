@@ -24,11 +24,11 @@
 
   <group if="$(arg real_robot)">
 
-  <node pkg="rtabmap_odom" type="icp_odometry" name="icp_odometry">
-    <param name="odom_frame_id" value="odom_icp"/>
-    <param name="frame_id" value="base_link"/>
-    <param name="filter" value="false"/>
-  </node>
+
+    <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
+      <arg name="filter" value="true"/>
+      <arg name ="rviz" value="false"/>
+    </include>
   
     <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
       output="screen" args="trikey/base_controller"/>

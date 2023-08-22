@@ -1,0 +1,136 @@
+#!/usr/bin/env python3
+
+import rospy
+import tf2_ros
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Float64
+from geometry_msgs.msg import Twist
+
+class OdomFilter():
+    def __init__(self):
+        
+
+        # Read parameters from ROS server
+        # self.raw_odom = rospy.get_param('/raw_odom_topic', '/odom_icp')
+        # self.filtered_odom = rospy.get_param('/filtered_odom_topic', '/odom')
+        # rospy.set_param('/filter_coefficient', 0.1)
+        self.alpha = rospy.get_param('/odom_lpf/alpha')
+
+ 
+        # Subscribe ICP odom topic
+        rospy.Subscriber("/odom_icp", Odometry, self.odom_callback)
+        # Publisher for filtered odom
+        self.odom_pub = rospy.Publisher("/odom", Odometry, queue_size=10)
+        # TF broadcaster for filtered odom
+        self.tf_br = tf2_ros.TransformBroadcaster()
+
+        # Publisher for LPF coefficient, alpha
+        self.alpha_pub = rospy.Publisher("/alpha", Float64, queue_size=10)
+
+        # Subscriber for LPF coefficient, alpha
+        rospy.Subscriber("/alpha", Float64, self.alpha_callback)
+
+        # Initialize Odom msg
+        self.prev_msg = Odometry()
+
+        # Initialize TF 
+        self.tf = tf2_ros.TransformStamped()
+
+
+    def alpha_callback(self, msg):
+        """
+        Callback function for alpha subscriber
+
+        Args
+        ------------------------------------------------
+            + alpha: filter coefficient
+        """
+        self.alpha = msg.data
+        # Publish alpha to topic
+        self.alpha_pub.publish(self.alpha)
+
+    def odom_callback(self, msg):
+        
+        # Low pass filter to odom msg
+        msg = self.LPF(msg,self.alpha)
+        # Zero velocity
+        # msg = self.ZeroVel(msg)
+        # publish filtered odom
+        self.odom_pub.publish(msg)
+        # Broadcast TF from filtered odom to base_link
+        self.broadcastTF(msg)
+      
+        
+
+    def LPF(self, msg, alpha):
+        """
+        Low pass filter for odometry
+
+        Args
+        ------------------------------------------------ 
+            + Raw Odometry Topic <nav_msgs.msg.Odometry>
+            + alpha: filter coefficient
+
+
+        Return: 
+        ------------------------------------------------
+            + Filtered Odometry Topic <nav_msgs.msg.Odometry>
+        """
+
+        # Filter linear velocity
+
+
+        msg.twist.twist.linear.x = alpha*msg.twist.twist.linear.x + (1-alpha)*self.prev_msg.twist.twist.linear.x
+        msg.twist.twist.linear.y = alpha*msg.twist.twist.linear.y + (1-alpha)*self.prev_msg.twist.twist.linear.y
+        msg.twist.twist.linear.z = 0
+        # Filter angular velocity
+        msg.twist.twist.angular.x = 0
+        msg.twist.twist.angular.y = 0
+        msg.twist.twist.angular.z = alpha*msg.twist.twist.angular.z + (1-alpha)*self.prev_msg.twist.twist.angular.z
+        # Filter position
+        msg.pose.pose.position.x = alpha*msg.pose.pose.position.x + (1-alpha)*self.prev_msg.pose.pose.position.x
+        msg.pose.pose.position.y = alpha*msg.pose.pose.position.y + (1-alpha)*self.prev_msg.pose.pose.position.y
+        msg.pose.pose.position.z = 0
+        # Filter orientation
+        # msg.pose.pose.orientation.x = alpha*msg.pose.pose.orientation.x + (1-alpha)*self.odom_msg.pose.pose.orientation.x
+        # msg.pose.pose.orientation.y = alpha*msg.pose.pose.orientation.y + (1-alpha)*self.odom_msg.pose.pose.orientation.y
+        # msg.pose.pose.orientation.z = alpha*msg.pose.pose.orientation.z + (1-alpha)*self.odom_msg.pose.pose.orientation.z
+        # msg.pose.pose.orientation.w = alpha*msg.pose.pose.orientation.w + (1-alpha)*self.odom_msg.pose.pose.orientation.w
+
+        # Update old msg
+        self.prev_msg = msg
+
+    
+
+        return msg
+    
+    def broadcastTF(self,msg):
+        """
+        Broadcast TF from filtered odom to base_link
+
+        Args
+        ------------------------------------------------
+            + Filtered Odometry Topic <nav_msgs.msg.Odometry>
+        """
+        self.tf.header.stamp = rospy.Time.now()
+        self.tf.header.frame_id = "odom"
+        self.tf.child_frame_id = "base_link"
+        self.tf.transform.translation.x = msg.pose.pose.position.x
+        self.tf.transform.translation.y = msg.pose.pose.position.y
+        self.tf.transform.translation.z = msg.pose.pose.position.z
+        self.tf.transform.rotation.x = msg.pose.pose.orientation.x
+        self.tf.transform.rotation.y = msg.pose.pose.orientation.y
+        self.tf.transform.rotation.z = msg.pose.pose.orientation.z
+        self.tf.transform.rotation.w = msg.pose.pose.orientation.w
+        self.tf_br.sendTransform(self.tf)
+        
+
+
+  
+if __name__ == '__main__':
+    #  Initialize node
+    rospy.init_node('odom_lpf', anonymous=True)
+    # Initialize OdomFilter class
+    odom_filter = OdomFilter()
+    # Keep node running
+    rospy.spin()

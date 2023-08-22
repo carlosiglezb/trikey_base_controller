@@ -50,10 +50,11 @@ target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(PROGRAMS
-  nodes/odom_filter
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
+
+
+catkin_install_python(PROGRAMS 
+nodes/odom_lpf
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
 #############
