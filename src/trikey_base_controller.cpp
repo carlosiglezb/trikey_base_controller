@@ -222,7 +222,7 @@ namespace trikey_base_controller
         auto w0_friction_comp = KarnoppCompensator(static_force0_, viscous_force_, vel_deadzone_);
         auto w1_friction_comp = KarnoppCompensator(static_force1_, viscous_force_, vel_deadzone_);
         auto w2_friction_comp = KarnoppCompensator(static_force2_, viscous_force_, vel_deadzone_);
-        ROS_INFO("friction compensation");
+        // ROS_INFO("friction compensation");
         // Set wheels torques (TODO add torque sensor readings and/or implement velocity control)
         filtered_velocities_ = vel_filter_->output();
 
@@ -231,17 +231,17 @@ namespace trikey_base_controller
         // Feedforawrd term to compensate for friction
           if (j == 0) {
             double friction_compensation = w0_friction_comp.Update(cmd_wheel_velocities_[j]);
-            ROS_INFO("friction compensation w0: %f", friction_compensation);
+            // ROS_INFO("friction compensation w0: %f", friction_compensation);
             cmd_wheel_velocities_[j] += friction_compensation;
           }
           else if (j == 1) {
             double friction_compensation = w1_friction_comp.Update(cmd_wheel_velocities_[j]);
-            ROS_INFO("friction compensation w1: %f", friction_compensation);
+            // ROS_INFO("friction compensation w1: %f", friction_compensation);
             cmd_wheel_velocities_[j] += friction_compensation;
           }
           else if (j == 2) {
             double friction_compensation = w2_friction_comp.Update(cmd_wheel_velocities_[j]);
-            ROS_INFO("friction compensation w2: %f", friction_compensation);
+            // ROS_INFO("friction compensation w2: %f", friction_compensation);
             cmd_wheel_velocities_[j] += friction_compensation;
           }
 
