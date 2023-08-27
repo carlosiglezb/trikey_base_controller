@@ -57,6 +57,10 @@
 #include "filters.hpp"
 #include <random>   //TODO remove
 
+#include "karnopp_compensator.hpp"
+
+#include <memory>
+
 
 namespace trikey_base_controller
 {
@@ -90,12 +94,15 @@ namespace trikey_base_controller
         void setupOdomPublishers(ros::NodeHandle &nh);
         void odometryCallback(const nav_msgs::Odometry& odom);
         void updateOdometry(const nav_msgs::Odometry& odom);
-        void filterOdometry(const nav_msgs::Odometry& odom);
+        
+         
+        
 
     private:
         std::vector<hardware_interface::JointHandle> joints_;
         double dt_;
         double kp_vel_;
+        double ki_pos_;
         double vel_filter_tau_;
         ExponentialMovingAverageFilter *vel_filter_;
 //        Eigen::Vector3d noisy_joints_vel_;  // TODO remove, for testing purposes only
@@ -132,11 +139,23 @@ namespace trikey_base_controller
         std::string base_frame_;
 
         nav_msgs::Odometry ground_truth_;
-        nav_msgs::Odometry previous_odom_;
 
+    
+      
         FirstOrderLowPassFilter *odom_filter_;
         double odom_filter_dt_;
         float lidar_frequency_;
+        void filterOdometry(const nav_msgs::Odometry& odometry_);
+
+        /**
+         * Friction compensator
+         */
+        double static_force0_;
+        double static_force1_;
+        double static_force2_;
+        double viscous_force_;
+        double vel_deadzone_;
+        KarnoppCompensator *karnopp_compensator_;
 
     public:
         OmniwheelKinematics *kinematics_calculator;

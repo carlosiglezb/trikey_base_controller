@@ -5,7 +5,7 @@ trikey:
     joint_names: [ "wheel0_joint", "wheel1_joint", "wheel2_joint" ]
     kp_vel_gain: 2.5
 #    damping_gain: 0.0       # this creates a steady state error
-    vel_filter_tau: 0.15    # the higher this value is, the higher the overshot
+    vel_filter_tau: 0.3    # the higher this value is, the higher the overshot
 
   # Kinematic Parameters ---------------------------------------
   kinematic_properties:

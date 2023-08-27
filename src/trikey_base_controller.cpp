@@ -47,6 +47,7 @@ namespace trikey_base_controller
     {
         dt_ = 0.001;
         kp_vel_ = 0.;
+        ki_pos_ = 0.;
 //        damping_gain_ = 0.;
         vel_filter_tau_ = 0.01;
         kinematics_calculator = new OmniwheelKinematics();
@@ -55,13 +56,31 @@ namespace trikey_base_controller
         Eigen::Vector3d vel_limits;
         vel_limits << 1.5, 1.5, 1.5;
         vel_filter_ = new ExponentialMovingAverageFilter(dt_, vel_filter_tau_, zeros, -vel_limits, vel_limits);
-        odom_filter_ = new FirstOrderLowPassFilter(dt_, 0.1, 3);
+
+        // odom filter 
+        odom_filter_dt_ = 1/lidar_frequency_;
+        //(double dt, double period, int dim)
+
+        odom_filter_ = new FirstOrderLowPassFilter(odom_filter_dt_, 0.1, 3);
+
+        // initialize karopp compensator
+        static_force0_ = 2.15;
+        static_force1_ = 1.4575;
+        static_force2_ = 1.18;
+        viscous_force_ = 0.1;
+        vel_deadzone_ = 0.05;
+        // auto w0_friction_comp = KarnoppCompensator(static_force0_, viscous_force_, vel_deadzone_);
+        // auto w1_friction_comp = KarnoppCompensator(static_force1_, viscous_force_, vel_deadzone_);
+        // auto w2_friction_comp = KarnoppCompensator(static_force2_, viscous_force_, vel_deadzone_);
     }
 
     TrikeyBaseController::~TrikeyBaseController()
     {
         delete kinematics_calculator;
         delete vel_filter_;
+        // change to smart ptr
+        delete odom_filter_;
+        delete karnopp_compensator_;
         cmd_sub_.shutdown();
         kp_vel_sub_.shutdown();
 //        damping_gain_sub_.shutdown();
@@ -180,7 +199,7 @@ namespace trikey_base_controller
 //        {
 //          noisy_joints_vel_[j] = joints_[j].getVelocity() + dist(generator);
 //        }
-
+      
         // get velocities in vector form for filtering later on
         for(unsigned int j = 0; j < joints_.size(); j++) {
           raw_velocities_[j] = joints_[j].getVelocity();
@@ -192,6 +211,7 @@ namespace trikey_base_controller
 
         // TODO compute odometry estimate
         updateOdometry(ground_truth_);
+        filterOdometry(ground_truth_);
 
         // TODO: limit velocities and accelerations
         
@@ -199,12 +219,43 @@ namespace trikey_base_controller
         // compute corresponding desired wheel velocities
         computeWheelVelocities(curr_cmd_twist, cmd_wheel_velocities_);
 
+        auto w0_friction_comp = KarnoppCompensator(static_force0_, viscous_force_, vel_deadzone_);
+        auto w1_friction_comp = KarnoppCompensator(static_force1_, viscous_force_, vel_deadzone_);
+        auto w2_friction_comp = KarnoppCompensator(static_force2_, viscous_force_, vel_deadzone_);
+        ROS_INFO("friction compensation");
         // Set wheels torques (TODO add torque sensor readings and/or implement velocity control)
         filtered_velocities_ = vel_filter_->output();
+
         for(int j = 0; j < joints_.size(); j++)
         {
+        // Feedforawrd term to compensate for friction
+          if (j == 0) {
+            double friction_compensation = w0_friction_comp.Update(cmd_wheel_velocities_[j]);
+            ROS_INFO("friction compensation w0: %f", friction_compensation);
+            cmd_wheel_velocities_[j] += friction_compensation;
+          }
+          else if (j == 1) {
+            double friction_compensation = w1_friction_comp.Update(cmd_wheel_velocities_[j]);
+            ROS_INFO("friction compensation w1: %f", friction_compensation);
+            cmd_wheel_velocities_[j] += friction_compensation;
+          }
+          else if (j == 2) {
+            double friction_compensation = w2_friction_comp.Update(cmd_wheel_velocities_[j]);
+            ROS_INFO("friction compensation w2: %f", friction_compensation);
+            cmd_wheel_velocities_[j] += friction_compensation;
+          }
+
+    
+
+
+        // Error computation for P controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
+        //   double pos_error = vel_error * dt;
+
+        //   P controller cmd vel
           double cmd = kp_vel_ * vel_error;
+          // double cmd = kp_vel_ * vel_error + damping_gain_ * pos_error;
+          // double cmd = cmd_wheel_velocities_[j];
           joints_[j].setCommand(cmd);
         }
 
@@ -304,6 +355,8 @@ namespace trikey_base_controller
         //     odom_pub_->unlockAndPublish();
         // }
 
+
+
         // Publish tf for base w.r.t. world
         if(tf_odom_pub_->trylock())
         {
@@ -321,7 +374,26 @@ namespace trikey_base_controller
 
     void TrikeyBaseController::filterOdometry(const nav_msgs::Odometry& odometry_)
     {
-        nav_msgs::Odometry filtered_odom;
+
+        // Filter odometry
+        // Divide odometry into pose and twist
+        Eigen::Vector3d pose3d_;
+        pose3d_ << odometry_.pose.pose.position.x, odometry_.pose.pose.position.y, 0;
+        Eigen::Vector3d linVel3d_;
+        linVel3d_ << odometry_.twist.twist.linear.x, odometry_.twist.twist.linear.y, 0;
+        Eigen::Vector3d angVel3d_;
+        angVel3d_ << 0, 0, odometry_.twist.twist.angular.z;
+
+        // Filter pose and twist
+        // odom_filter_->Input(pose3d_);
+        // Eigen::Vector3d filtered_pose3d_ = odom_filter_->Output();
+        // odom_filter_->Input(linVel3d_);
+        // Eigen::Vector3d filtered_lin_vel3d_ = odom_filter_->Output();
+        // odom_filter_->Input(angVel3d_);
+        // Eigen::Vector3d filtered_ang_vel3d_ = odom_filter_->Output();
+
+
+
     } 
 }
 

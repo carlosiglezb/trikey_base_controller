@@ -2,9 +2,12 @@
 
 import rospy
 import tf2_ros
+import tf
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
+
 
 class OdomFilter():
     def __init__(self):
@@ -81,7 +84,6 @@ class OdomFilter():
 
 
         msg.twist.twist.linear.x = alpha*msg.twist.twist.linear.x + (1-alpha)*self.prev_msg.twist.twist.linear.x
-        msg.twist.twist.linear.y = alpha*msg.twist.twist.linear.y + (1-alpha)*self.prev_msg.twist.twist.linear.y
         msg.twist.twist.linear.z = 0
         # Filter angular velocity
         msg.twist.twist.angular.x = 0
@@ -91,11 +93,33 @@ class OdomFilter():
         msg.pose.pose.position.x = alpha*msg.pose.pose.position.x + (1-alpha)*self.prev_msg.pose.pose.position.x
         msg.pose.pose.position.y = alpha*msg.pose.pose.position.y + (1-alpha)*self.prev_msg.pose.pose.position.y
         msg.pose.pose.position.z = 0
+        
         # Filter orientation
-        # msg.pose.pose.orientation.x = alpha*msg.pose.pose.orientation.x + (1-alpha)*self.odom_msg.pose.pose.orientation.x
-        # msg.pose.pose.orientation.y = alpha*msg.pose.pose.orientation.y + (1-alpha)*self.odom_msg.pose.pose.orientation.y
-        # msg.pose.pose.orientation.z = alpha*msg.pose.pose.orientation.z + (1-alpha)*self.odom_msg.pose.pose.orientation.z
-        # msg.pose.pose.orientation.w = alpha*msg.pose.pose.orientation.w + (1-alpha)*self.odom_msg.pose.pose.orientation.w
+        # orientation_list = [msg.pose.pose.orientation_q.x, 
+        #                     msg.pose.pose.orientation_q.y, 
+        #                     msg.pose.pose.orientation_q.z, 
+        #                     msg.pose.pose.orientation_q.w]
+        # (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
+
+        # filtered_roll = alpha*roll + (1-alpha)*self.prev_roll
+        # filtered_pitch = alpha*pitch + (1-alpha)*self.prev_pitch
+        # filtered_yaw = alpha*yaw + (1-alpha)*self.prev_yaw
+
+        # filtered_orientation_q = quaternion_from_euler(filtered_roll, filtered_pitch, filtered_yaw)
+  
+ 
+
+
+        # # Update the orientation in the message
+        # msg.pose.pose.orientation.x = filtered_orientation_q[0]
+        # msg.pose.pose.orientation.y = filtered_orientation_q[1]
+        # msg.pose.pose.orientation.z = filtered_orientation_q[2]
+        # msg.pose.pose.orientation.w = filtered_orientation_q[3]
+
+        # # Update the previous Euler angles
+        # self.prev_roll = filtered_roll
+        # self.prev_pitch = filtered_pitch
+        # self.prev_yaw = filtered_yaw
 
         # Update old msg
         self.prev_msg = msg
