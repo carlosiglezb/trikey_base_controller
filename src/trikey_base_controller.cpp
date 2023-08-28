@@ -226,23 +226,22 @@ namespace trikey_base_controller
         // Set wheels torques (TODO add torque sensor readings and/or implement velocity control)
         filtered_velocities_ = vel_filter_->output();
 
+  
+
         for(int j = 0; j < joints_.size(); j++)
         {
         // Feedforawrd term to compensate for friction
           if (j == 0) {
-            double friction_compensation = w0_friction_comp.Update(cmd_wheel_velocities_[j]);
+            friction_compensation_ = w0_friction_comp.Update(cmd_wheel_velocities_[j]);
             // ROS_INFO("friction compensation w0: %f", friction_compensation);
-            cmd_wheel_velocities_[j] += friction_compensation;
           }
           else if (j == 1) {
-            double friction_compensation = w1_friction_comp.Update(cmd_wheel_velocities_[j]);
+            friction_compensation_ = w1_friction_comp.Update(cmd_wheel_velocities_[j]);
             // ROS_INFO("friction compensation w1: %f", friction_compensation);
-            cmd_wheel_velocities_[j] += friction_compensation;
           }
           else if (j == 2) {
-            double friction_compensation = w2_friction_comp.Update(cmd_wheel_velocities_[j]);
+            friction_compensation_ = w2_friction_comp.Update(cmd_wheel_velocities_[j]);
             // ROS_INFO("friction compensation w2: %f", friction_compensation);
-            cmd_wheel_velocities_[j] += friction_compensation;
           }
 
     
@@ -253,7 +252,7 @@ namespace trikey_base_controller
         //   double pos_error = vel_error * dt;
 
         //   P controller cmd vel
-          double cmd = kp_vel_ * vel_error;
+          double cmd = kp_vel_ * vel_error + friction_compensation_;
           // double cmd = kp_vel_ * vel_error + damping_gain_ * pos_error;
           // double cmd = cmd_wheel_velocities_[j];
           joints_[j].setCommand(cmd);

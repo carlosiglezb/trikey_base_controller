@@ -155,6 +155,7 @@ namespace trikey_base_controller
         double static_force2_;
         double viscous_force_;
         double vel_deadzone_;
+        double friction_compensation_;
         KarnoppCompensator *karnopp_compensator_;
 
     public:
