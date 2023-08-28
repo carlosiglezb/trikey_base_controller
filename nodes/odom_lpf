@@ -20,8 +20,8 @@ class OdomFilter():
         self.alpha = rospy.get_param('/odom_lpf/alpha')
 
  
-        # Subscribe ICP odom topic
-        rospy.Subscriber("/odom_icp", Odometry, self.odom_callback)
+        # Subscribe RTABmap odom topic
+        rospy.Subscriber("/rtabmap/rtabmap/odom", Odometry, self.odom_callback)
         # Publisher for filtered odom
         self.odom_pub = rospy.Publisher("/odom", Odometry, queue_size=10)
         # TF broadcaster for filtered odom
