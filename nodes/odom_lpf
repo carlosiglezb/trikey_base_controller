@@ -14,10 +14,12 @@ class OdomFilter():
         
 
         # Read parameters from ROS server
-        self.raw_odom = rospy.get_param('/raw_odom_topic')
-        self.filtered_odom = rospy.get_param('/filtered_odom_topic')
-        self.alpha = rospy.get_param('/odom_lpf/alpha')
-        self.publish_filtered_odom_tf = rospy.get_param('/publish_filtered_odom_tf', True)
+        self.raw_odom = rospy.get_param('/odom_lpf/raw_odom_topic', '/odom_icp')
+        self.filtered_odom = rospy.get_param('/odom_lpf/filtered_odom_topic','/odom_icp_filtered')
+        self.alpha = rospy.get_param('odom_lpf/lpf_alpha',0.1)
+        self.publish_filtered_odom_tf = rospy.get_param('/odom_lpf/publish_filtered_tf', True)
+        self.base_frame_id = rospy.get_param('/odom_lpf/base_frame_id', 'base_link')
+        self.filtered_odom_frame_id = rospy.get_param('/odom_lpf/filtered_odom_frame_id','odom_icp_filtered')
 
  
         # Subscribe RTABmap odom topic
@@ -138,8 +140,8 @@ class OdomFilter():
             + Filtered Odometry Topic <nav_msgs.msg.Odometry>
         """
         self.tf.header.stamp = rospy.Time.now()
-        self.tf.header.frame_id = "odom"
-        self.tf.child_frame_id = "base_link"
+        self.tf.header.frame_id = self.filtered_odom_frame_id
+        self.tf.child_frame_id = self.base_frame_id
         self.tf.transform.translation.x = msg.pose.pose.position.x
         self.tf.transform.translation.y = msg.pose.pose.position.y
         self.tf.transform.translation.z = msg.pose.pose.position.z
