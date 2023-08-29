@@ -25,15 +25,13 @@
   <group if="$(arg real_robot)">
 
 
-    <!-- <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
+    <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
       <arg name="filter" value="true"/>
       <arg name ="rviz" value="false"/>
       <arg name="alpha_value" value="0.01"/>
-    </include> -->
+    </include>
 
-    <node name="odom_lpf" pkg="trikey_base_controller" type="odom_lpf">
-      <param name="alpha_value" value="0.5"/>
-    </node>
+  
   
     <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
       output="screen" args="trikey/base_controller"/>

@@ -21,7 +21,7 @@ class OdomFilter():
 
  
         # Subscribe RTABmap odom topic
-        rospy.Subscriber("/rtabmap/rtabmap/odom", Odometry, self.odom_callback)
+        rospy.Subscriber("/odom_icp", Odometry, self.odom_callback)
         # Publisher for filtered odom
         self.odom_pub = rospy.Publisher("/odom", Odometry, queue_size=10)
         # TF broadcaster for filtered odom
@@ -65,7 +65,7 @@ class OdomFilter():
       
         
 
-    def LPF(self, msg, alpha):
+    def LPF(self, msg, alpha=0.5):
         """
         Low pass filter for odometry
 
@@ -84,6 +84,7 @@ class OdomFilter():
 
 
         msg.twist.twist.linear.x = alpha*msg.twist.twist.linear.x + (1-alpha)*self.prev_msg.twist.twist.linear.x
+        msg.twist.twist.linear.y = alpha*msg.twist.twist.linear.y + (1-alpha)*self.prev_msg.twist.twist.linear.y
         msg.twist.twist.linear.z = 0
         # Filter angular velocity
         msg.twist.twist.angular.x = 0
