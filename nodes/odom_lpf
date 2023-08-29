@@ -14,16 +14,16 @@ class OdomFilter():
         
 
         # Read parameters from ROS server
-        # self.raw_odom = rospy.get_param('/raw_odom_topic', '/odom_icp')
-        # self.filtered_odom = rospy.get_param('/filtered_odom_topic', '/odom')
-        # rospy.set_param('/filter_coefficient', 0.1)
+        self.raw_odom = rospy.get_param('/raw_odom_topic')
+        self.filtered_odom = rospy.get_param('/filtered_odom_topic')
         self.alpha = rospy.get_param('/odom_lpf/alpha')
+        self.publish_filtered_odom_tf = rospy.get_param('/publish_filtered_odom_tf', True)
 
  
         # Subscribe RTABmap odom topic
-        rospy.Subscriber("/odom_icp", Odometry, self.odom_callback)
+        rospy.Subscriber(self.raw_odom, Odometry, self.odom_callback)
         # Publisher for filtered odom
-        self.odom_pub = rospy.Publisher("/odom", Odometry, queue_size=10)
+        self.odom_pub = rospy.Publisher(self.filtered_odom, Odometry, queue_size=10)
         # TF broadcaster for filtered odom
         self.tf_br = tf2_ros.TransformBroadcaster()
 
@@ -56,12 +56,12 @@ class OdomFilter():
         
         # Low pass filter to odom msg
         msg = self.LPF(msg,self.alpha)
-        # Zero velocity
-        # msg = self.ZeroVel(msg)
-        # publish filtered odom
+        # Publish filtered odom
         self.odom_pub.publish(msg)
-        # Broadcast TF from filtered odom to base_link
-        self.broadcastTF(msg)
+
+        if self.publish_filtered_odom_tf:
+            # Broadcast TF from filtered odom to base_link
+            self.broadcastTF(msg)
       
         
 
