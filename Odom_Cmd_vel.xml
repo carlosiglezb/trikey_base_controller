@@ -1,31 +1,34 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <root>
  <tabbed_widget parent="main_window" name="Main Window">
-  <Tab tab_name="tab1" containers="1">
+  <Tab containers="1" tab_name="tab1">
    <Container>
-    <DockSplitter orientation="-" sizes="0.333741;0.332518;0.333741" count="3">
+    <DockSplitter count="3" orientation="-" sizes="0.333709;0.332582;0.333709">
      <DockArea name="...">
-      <plot flip_y="false" flip_x="false" mode="TimeSeries" style="Lines">
-       <range bottom="-0.146758" top="0.172687" left="7.118033" right="12.116211"/>
+      <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
+       <range right="115.500000" top="0.091886" bottom="-0.039934" left="0.001000"/>
        <limitY/>
        <curve name="/odom_icp/twist/twist/linear/x" color="#ff0013"/>
-       <curve name="/odom/twist/twist/linear/x" color="#0300ff"/>
+       <curve name="/odom_icp_filtered/twist/twist/linear/x" color="#d62728"/>
+       <curve name="/trikey/base_controller/cmd_vel/linear/x" color="#000000"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot flip_y="false" flip_x="false" mode="TimeSeries" style="Lines">
-       <range bottom="-0.108429" top="0.085282" left="7.118033" right="12.116211"/>
+      <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
+       <range right="115.500000" top="0.002447" bottom="-0.004441" left="0.001000"/>
        <limitY/>
        <curve name="/odom_icp/twist/twist/linear/y" color="#ed1f00"/>
-       <curve name="/odom/twist/twist/linear/y" color="#0022ff"/>
+       <curve name="/odom_icp_filtered/twist/twist/linear/y" color="#1ac938"/>
+       <curve name="/trikey/base_controller/cmd_vel/linear/y" color="#000000"/>
       </plot>
      </DockArea>
      <DockArea name="...">
-      <plot flip_y="false" flip_x="false" mode="TimeSeries" style="Lines">
-       <range bottom="-0.050930" top="0.056806" left="7.118033" right="12.116211"/>
+      <plot flip_x="false" mode="TimeSeries" style="Lines" flip_y="false">
+       <range right="115.500000" top="0.184218" bottom="-0.126313" left="0.001000"/>
        <limitY/>
-       <curve name="/odom_icp/twist/twist/angular/z" color="#f4000d"/>
-       <curve name="/odom/twist/twist/angular/z" color="#1400ff"/>
+       <curve name="/odom_icp/twist/twist/angular/z" color="#ff000d"/>
+       <curve name="/odom_icp_filtered/twist/twist/angular/z" color="#1f77b4"/>
+       <curve name="/trikey/base_controller/cmd_vel/angular/z" color="#000000"/>
       </plot>
      </DockArea>
     </DockSplitter>
@@ -38,7 +41,7 @@
  <!-- - - - - - - - - - - - - - - -->
  <Plugins>
   <plugin ID="DataLoad CSV">
-   <default delimiter="0" time_axis=""/>
+   <default time_axis="" delimiter="0"/>
   </plugin>
   <plugin ID="DataLoad MCAP"/>
   <plugin ID="DataLoad ROS bags">

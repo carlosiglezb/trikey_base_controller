@@ -67,7 +67,7 @@ class OdomFilter():
       
         
 
-    def LPF(self, msg, alpha=0.5):
+    def LPF(self, msg, alpha):
         """
         Low pass filter for odometry
 
@@ -98,32 +98,20 @@ class OdomFilter():
         msg.pose.pose.position.z = 0
         
         # Filter orientation
-        # orientation_list = [msg.pose.pose.orientation_q.x, 
-        #                     msg.pose.pose.orientation_q.y, 
-        #                     msg.pose.pose.orientation_q.z, 
-        #                     msg.pose.pose.orientation_q.w]
-        # (roll, pitch, yaw) = euler_from_quaternion (orientation_list)
+        # Convert quaternion to euler
+        (roll, pitch, yaw) = euler_from_quaternion([msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w])
+        # Filter yaw for 2D motion
+        yaw = alpha*yaw + (1-alpha)*euler_from_quaternion([self.prev_msg.pose.pose.orientation.x, self.prev_msg.pose.pose.orientation.y, self.prev_msg.pose.pose.orientation.z, self.prev_msg.pose.pose.orientation.w])[2]
+        pitch = 0 
+        roll = 0
+        # Convert euler to quaternion
+        q = quaternion_from_euler(roll, pitch, yaw)
+        msg.pose.pose.orientation.x = q[0]
+        msg.pose.pose.orientation.y = q[1]
+        msg.pose.pose.orientation.z = q[2]
+        msg.pose.pose.orientation.w = q[3]
 
-        # filtered_roll = alpha*roll + (1-alpha)*self.prev_roll
-        # filtered_pitch = alpha*pitch + (1-alpha)*self.prev_pitch
-        # filtered_yaw = alpha*yaw + (1-alpha)*self.prev_yaw
-
-        # filtered_orientation_q = quaternion_from_euler(filtered_roll, filtered_pitch, filtered_yaw)
-  
- 
-
-
-        # # Update the orientation in the message
-        # msg.pose.pose.orientation.x = filtered_orientation_q[0]
-        # msg.pose.pose.orientation.y = filtered_orientation_q[1]
-        # msg.pose.pose.orientation.z = filtered_orientation_q[2]
-        # msg.pose.pose.orientation.w = filtered_orientation_q[3]
-
-        # # Update the previous Euler angles
-        # self.prev_roll = filtered_roll
-        # self.prev_pitch = filtered_pitch
-        # self.prev_yaw = filtered_yaw
-
+    
         # Update old msg
         self.prev_msg = msg
 
