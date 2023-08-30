@@ -7,6 +7,7 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Twist
+from copy import deepcopy
 
 
 class OdomFilter():
@@ -36,10 +37,13 @@ class OdomFilter():
         rospy.Subscriber("/alpha", Float64, self.alpha_callback)
 
         # Initialize Odom msg
-        self.prev_msg = Odometry()
+        # self.prev_msg = Odometry()
+        self.prev_msg = None
 
         # Initialize TF 
         self.tf = tf2_ros.TransformStamped()
+
+        self.threshold = 0.01
 
 
     def alpha_callback(self, msg):
@@ -81,43 +85,94 @@ class OdomFilter():
         ------------------------------------------------
             + Filtered Odometry Topic <nav_msgs.msg.Odometry>
         """
-
-        # Filter linear velocity
-
-
-        msg.twist.twist.linear.x = alpha*msg.twist.twist.linear.x + (1-alpha)*self.prev_msg.twist.twist.linear.x
-        msg.twist.twist.linear.y = alpha*msg.twist.twist.linear.y + (1-alpha)*self.prev_msg.twist.twist.linear.y
-        msg.twist.twist.linear.z = 0
-        # Filter angular velocity
-        msg.twist.twist.angular.x = 0
-        msg.twist.twist.angular.y = 0
-        msg.twist.twist.angular.z = alpha*msg.twist.twist.angular.z + (1-alpha)*self.prev_msg.twist.twist.angular.z
-        # Filter position
-        msg.pose.pose.position.x = alpha*msg.pose.pose.position.x + (1-alpha)*self.prev_msg.pose.pose.position.x
-        msg.pose.pose.position.y = alpha*msg.pose.pose.position.y + (1-alpha)*self.prev_msg.pose.pose.position.y
-        msg.pose.pose.position.z = 0
+        # Initialize prev_msg in class constructor
+        if self.prev_msg is None:
+            self.prev_msg = deepcopy(msg)
+            return msg
+        filtered_msg = deepcopy(msg)
+        # Assuming alpha is already within [0, 1]
+        # Linear velocity
+        filtered_msg.twist.twist.linear.x = alpha * msg.twist.twist.linear.x + (1 - alpha) * self.prev_msg.twist.twist.linear.x
+        filtered_msg.twist.twist.linear.y = alpha * msg.twist.twist.linear.y + (1 - alpha) * self.prev_msg.twist.twist.linear.y
+        filtered_msg.twist.twist.linear.z = 0
+        # Angular velocity
+        filtered_msg.twist.twist.angular.x = 0
+        filtered_msg.twist.twist.angular.y = 0
+        filtered_msg.twist.twist.angular.z = alpha * msg.twist.twist.angular.z + (1 - alpha) * self.prev_msg.twist.twist.angular.z
+        # Position
+        filtered_msg.pose.pose.position.x = alpha * msg.pose.pose.position.x + (1 - alpha) * self.prev_msg.pose.pose.position.x
+        filtered_msg.pose.pose.position.y = alpha * msg.pose.pose.position.y + (1 - alpha) * self.prev_msg.pose.pose.position.y
+        filtered_msg.pose.pose.position.z = 0
+        # Orientation
+        # Quaternion SLERP for filtering
+        q1 = [self.prev_msg.pose.pose.orientation.x, self.prev_msg.pose.pose.orientation.y, self.prev_msg.pose.pose.orientation.z, self.prev_msg.pose.pose.orientation.w]
+        q2 = [msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w]
         
-        # Filter orientation
-        # Convert quaternion to euler
-        (roll, pitch, yaw) = euler_from_quaternion([msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w])
-        # Filter yaw for 2D motion
-        yaw = alpha*yaw + (1-alpha)*euler_from_quaternion([self.prev_msg.pose.pose.orientation.x, self.prev_msg.pose.pose.orientation.y, self.prev_msg.pose.pose.orientation.z, self.prev_msg.pose.pose.orientation.w])[2]
-        pitch = 0 
-        roll = 0
-        # Convert euler to quaternion
-        q = quaternion_from_euler(roll, pitch, yaw)
-        msg.pose.pose.orientation.x = q[0]
-        msg.pose.pose.orientation.y = q[1]
-        msg.pose.pose.orientation.z = q[2]
-        msg.pose.pose.orientation.w = q[3]
+        q_filtered = tf.transformations.quaternion_slerp(q1, q2, alpha)
+        filtered_msg.pose.pose.orientation.x = q_filtered[0]
+        filtered_msg.pose.pose.orientation.y = q_filtered[1]
+        filtered_msg.pose.pose.orientation.z = q_filtered[2]
+        filtered_msg.pose.pose.orientation.w = q_filtered[3]
 
-    
-        # Update old msg
-        self.prev_msg = msg
-
+        self.prev_msg = deepcopy(filtered_msg)
+        
+        return filtered_msg
     
 
-        return msg
+    def eLPF(self, msg):
+        """
+        Low pass filter for odometry
+
+        Args
+        ------------------------------------------------ 
+            + Raw Odometry Topic <nav_msgs.msg.Odometry>
+            + alpha: filter coefficient
+
+
+        Return: 
+        ------------------------------------------------
+            + Filtered Odometry Topic <nav_msgs.msg.Odometry>
+        """
+        if self.prev_msg is None:
+            self.prev_msg = msg
+            return msg  # If this is the first message, just return it
+
+        # Create a deep copy of the incoming message to hold filtered values
+        filtered_msg = msg
+
+        # For linear velocity
+        delta_linear_x = abs(msg.twist.twist.linear.x - self.prev_msg.twist.twist.linear.x)
+        if delta_linear_x >= self.threshold:
+            filtered_msg.twist.twist.linear.x = self.alpha * msg.twist.twist.linear.x + (1 - self.alpha) * self.prev_msg.twist.twist.linear.x
+        else:
+            filtered_msg.twist.twist.linear.x = self.prev_msg.twist.twist.linear.x
+
+        # Similarly for other components ...
+
+        # For position
+        delta_position_x = abs(msg.pose.pose.position.x - self.prev_msg.pose.pose.position.x)
+        if delta_position_x >= self.threshold:
+            filtered_msg.pose.pose.position.x = self.alpha * msg.pose.pose.position.x + (1 - self.alpha) * self.prev_msg.pose.pose.position.x
+        else:
+            filtered_msg.pose.pose.position.x = self.prev_msg.pose.pose.position.x
+
+        # Similarly for other position components ...
+
+        # Orientation
+        # Quaternion SLERP for filtering
+        q1 = [self.prev_msg.pose.pose.orientation.x, self.prev_msg.pose.pose.orientation.y, self.prev_msg.pose.pose.orientation.z, self.prev_msg.pose.pose.orientation.w]
+        q2 = [msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z, msg.pose.pose.orientation.w]
+        
+        q_filtered = tf.transformations.quaternion_slerp(q1, q2, self.alpha)
+        filtered_msg.pose.pose.orientation.x = q_filtered[0]
+        filtered_msg.pose.pose.orientation.y = q_filtered[1]
+        filtered_msg.pose.pose.orientation.z = q_filtered[2]
+        filtered_msg.pose.pose.orientation.w = q_filtered[3]
+
+        # Update the previous message
+        self.prev_msg = filtered_msg
+
+        return filtered_msg
     
     def broadcastTF(self,msg):
         """
