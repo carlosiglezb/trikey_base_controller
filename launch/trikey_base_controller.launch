@@ -2,6 +2,7 @@
 <launch>
   <arg name="real_robot" default="true"/>
   <arg name="xbox" default="true"/>
+  <arg name="noetic" default="true"/>
 
   <arg name="joy_config" default="xbox" />
   <arg name="joy_dev" default="/dev/input/js0" />
@@ -28,6 +29,7 @@
     <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
       <arg name="filter" value="true"/>
       <arg name ="rviz" value="false"/>
+      <are name="noetic" value="$(arg noetic)"/>
       <arg name="alpha_value" value="0.1"/>
     </include>
 
