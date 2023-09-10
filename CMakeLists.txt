@@ -13,6 +13,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   realtime_tools
   sensor_msgs
+  nav_msgs
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -37,11 +39,33 @@ add_library(${PROJECT_NAME}_lib
         src/omniwheel_kinematics.cpp
         src/filters.cpp
         src/karnopp_compensator.cpp
-        src/odom_filter.cpp
         )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
+# target_link_libraries(${PROJECT_NAME}_lib ${PROJECT_NAME}_odom_filter ${catkin_LIBRARIES})
+
+
+###########
+## Build ##
+###########
+
+## Declare a C++ executable
+## With catkin_make all packages are built within a single CMake context
+## The recommended prefix ensures that target names across packages don't collide
+# add_executable(${PROJECT_NAME}_odom_filter src/odom_filter.cpp)
+
+## Rename C++ executable without prefix
+## The above recommended prefix causes long target names, the following renames the
+## target back to the shorter version for ease of user use
+## e.g. "rosrun someones_pkg node" instead of "rosrun someones_pkg someones_pkg_node"
+# set_target_properties(${PROJECT_NAME}_odom_filter PROPERTIES OUTPUT_NAME odom_filter PREFIX "")
+
+
+## Add cmake target dependencies of the executable
+## same as for the library above
+# add_dependencies(${PROJECT_NAME}_odom_filter ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
 
 
 #############
@@ -58,6 +82,9 @@ target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
 catkin_install_python(PROGRAMS 
 nodes/odom_lpf
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+install(DIRECTORY launch/ DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch)
+
 
 
 #############
