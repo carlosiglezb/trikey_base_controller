@@ -36,7 +36,9 @@ add_library(${PROJECT_NAME}_lib
         src/trikey_base_controller.cpp
         src/omniwheel_kinematics.cpp
         src/filters.cpp
-        src/karnopp_compensator.cpp)
+        src/karnopp_compensator.cpp
+        src/odom_filter.cpp
+        )
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_lib ${catkin_LIBRARIES})
