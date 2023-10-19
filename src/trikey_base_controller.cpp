@@ -69,9 +69,7 @@ namespace trikey_base_controller
         static_force2_ = 1.18;
         viscous_force_ = 0.1;
         vel_deadzone_ = 0.05;
-        // auto w0_friction_comp = KarnoppCompensator(static_force0_, viscous_force_, vel_deadzone_);
-        // auto w1_friction_comp = KarnoppCompensator(static_force1_, viscous_force_, vel_deadzone_);
-        // auto w2_friction_comp = KarnoppCompensator(static_force2_, viscous_force_, vel_deadzone_);
+
 
         // Maximum acceleration for wheel velocities
         MAX_ACCEL = 0.01;
@@ -286,8 +284,8 @@ namespace trikey_base_controller
           // double pos_error = vel_error * dt;
 
         //   P controller cmd vel
+          ROS_INFO("kp_vel: %f", kp_vel_);
           double cmd = kp_vel_ * vel_error + friction_compensation_;
-          // double cmd = kp_vel_ * vel_error + damping_gain_ * pos_error;
           // double cmd = cmd_wheel_velocities_[j];
           joints_[j].setCommand(cmd);
         }
