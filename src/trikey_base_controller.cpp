@@ -194,12 +194,7 @@ namespace trikey_base_controller
     //Controller running
     void TrikeyBaseController::update(const ros::Time& time, const ros::Duration& period)
     {
-        // simulate noise in data
-//        std::normal_distribution<double> dist(0.0, 0.1);
-//        for(int j = 0; j < joints_.size(); j++)
-//        {
-//          noisy_joints_vel_[j] = joints_[j].getVelocity() + dist(generator);
-//        }
+
       
         // get velocities in vector form for filtering later on
         for(unsigned int j = 0; j < joints_.size(); j++) {
@@ -285,8 +280,9 @@ namespace trikey_base_controller
 
         //   P controller cmd vel
           ROS_INFO("kp_vel: %f", kp_vel_);
-          double cmd = kp_vel_ * vel_error + friction_compensation_;
+          // double cmd = kp_vel_ * vel_error + friction_compensation_;
           // double cmd = cmd_wheel_velocities_[j];
+          double cmd = kp_vel_ * vel_error;
           joints_[j].setCommand(cmd);
         }
 
