@@ -278,8 +278,6 @@ namespace trikey_base_controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
           // double pos_error = vel_error * dt;
 
-        //   P controller cmd vel
-          ROS_INFO("kp_vel: %f", kp_vel_);
           // double cmd = kp_vel_ * vel_error + friction_compensation_;
           // double cmd = cmd_wheel_velocities_[j];
           double cmd = kp_vel_ * vel_error;
