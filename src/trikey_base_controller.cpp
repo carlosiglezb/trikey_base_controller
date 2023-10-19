@@ -72,6 +72,9 @@ namespace trikey_base_controller
         // auto w0_friction_comp = KarnoppCompensator(static_force0_, viscous_force_, vel_deadzone_);
         // auto w1_friction_comp = KarnoppCompensator(static_force1_, viscous_force_, vel_deadzone_);
         // auto w2_friction_comp = KarnoppCompensator(static_force2_, viscous_force_, vel_deadzone_);
+
+        // Maximum acceleration for wheel velocities
+        MAX_ACCEL = 0.01;
     }
 
     TrikeyBaseController::~TrikeyBaseController()
@@ -209,11 +212,42 @@ namespace trikey_base_controller
         // Read desired twist sent from user/external controller
         CommandTwist curr_cmd_twist = *(command_twist_.readFromRT());
 
-        // TODO compute odometry estimate
-        // updateOdometry(ground_truth_);
-        // filterOdometry(ground_truth_);
+        //compute odometry estimate => Odometry estimated by separate node with Lidar
 
         // TODO: limit velocities and accelerations
+
+        // Limit velocities <= garbage, fix it later
+        // for(unsigned int j = 0; j < joints_.size(); j++) {
+        
+        //     if (cmd_wheel_velocities_[j] > 0.5) {
+        //       cmd_wheel_velocities_[j] = 0.5;
+        //     }
+        //     else if (cmd_wheel_velocities_[j] < -0.5) {
+        //       cmd_wheel_velocities_[j] = -0.5;
+        //     }
+        // }
+        
+        // // Limit accelerations
+        // for(unsigned int j = 0; j < joints_.size(); j++) {
+        //     double delta_vel = cmd_wheel_velocities_[j] - prev_cmd_wheel_velocities_[j];
+        //     double dt = period.toSec(); // ROS Duration to seconds
+            
+        //     // Calculate actual acceleration
+        //     double accel = delta_vel / dt;
+            
+        //     // Limit acceleration
+        //     if (std::abs(accel) > MAX_ACCEL) {
+        //         accel = std::copysign(MAX_ACCEL, accel); // Keep the sign of acceleration
+        //         cmd_wheel_velocities_[j] = prev_cmd_wheel_velocities_[j] + accel * dt;
+        //     }
+            
+        //     // Update previous velocity for the next iteration
+        //     prev_cmd_wheel_velocities_[j] = cmd_wheel_velocities_[j];
+        // }
+
+
+
+    
         
 
         // compute corresponding desired wheel velocities
@@ -249,7 +283,7 @@ namespace trikey_base_controller
 
         // Error computation for P controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
-        //   double pos_error = vel_error * dt;
+          // double pos_error = vel_error * dt;
 
         //   P controller cmd vel
           double cmd = kp_vel_ * vel_error + friction_compensation_;

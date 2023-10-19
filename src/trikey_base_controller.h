@@ -104,6 +104,8 @@ namespace trikey_base_controller
         double kp_vel_;
         double ki_pos_;
         double vel_filter_tau_;
+        double MAX_ACCEL; 
+
         ExponentialMovingAverageFilter *vel_filter_;
 //        Eigen::Vector3d noisy_joints_vel_;  // TODO remove, for testing purposes only
 //        std::default_random_engine generator;   // TODO remove, for testing purposes only
@@ -111,6 +113,7 @@ namespace trikey_base_controller
 
         std::vector<double> init_pos_;
         std::vector<double> init_vel_;
+        std::vector<double> prev_cmd_wheel_velocities_;
 
         std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState>> filt_vel_pub_;
         std::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState>> cmd_wheel_vel_pub_;
