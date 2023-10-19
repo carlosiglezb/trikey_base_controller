@@ -279,8 +279,11 @@ namespace trikey_base_controller
           // double pos_error = vel_error * dt;
 
           // double cmd = kp_vel_ * vel_error + friction_compensation_;
-          // double cmd = cmd_wheel_velocities_[j];
-          double cmd = kp_vel_ * vel_error;
+
+          // double cmd = kp_vel_ * vel_error;
+
+          // No feedback
+          double cmd = cmd_wheel_velocities_[j];
           joints_[j].setCommand(cmd);
         }
 
