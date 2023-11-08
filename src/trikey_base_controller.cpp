@@ -277,7 +277,7 @@ namespace trikey_base_controller
 
 
           // Feed forward term to compensate for friction
-          double cmd = P_term + friction_compensation_;
+          double cmd = P_term + intergal_term + friction_compensation_;
 
 
           joints_[j].setCommand(cmd);
