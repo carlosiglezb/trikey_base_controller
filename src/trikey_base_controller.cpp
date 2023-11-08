@@ -47,7 +47,7 @@ namespace trikey_base_controller
     {
         dt_ = 0.001;
         kp_vel_ = 0.;
-        ki_pos_ = 0.;
+        ki_vel_ = 0.;
 //        damping_gain_ = 0.;
         vel_filter_tau_ = 0.01;
         kinematics_calculator = new OmniwheelKinematics();
@@ -70,9 +70,14 @@ namespace trikey_base_controller
         viscous_force_ = 0.1;
         vel_deadzone_ = 0.05;
 
+        // initialize previous timestamp
+        timestamp_prev_ = 0.0;
+        // initialize PID terms
+        integral_prev_ = 0.0;
+        vel_error_prev_ = 0.0;
 
-        // Maximum acceleration for wheel velocities
-        MAX_ACCEL = 0.01;
+
+    
     }
 
     TrikeyBaseController::~TrikeyBaseController()
@@ -84,6 +89,7 @@ namespace trikey_base_controller
         delete karnopp_compensator_;
         cmd_sub_.shutdown();
         kp_vel_sub_.shutdown();
+        ki_vel_sub_.shutdown();
 //        damping_gain_sub_.shutdown();
         vel_filter_sub_.shutdown();
         ground_truth_sub_.shutdown();
@@ -127,7 +133,12 @@ namespace trikey_base_controller
 
         // Set controller parameters
         if( !nh.getParam( "/trikey/base_controller/kp_vel_gain", kp_vel_ ) ) {
-          ROS_ERROR("Parameter vel_gain not specified");
+          ROS_ERROR("Parameter kp_vel_gain not specified");
+          return false;
+        }
+
+         if( !nh.getParam( "/trikey/base_controller/ki_vel_gain", ki_vel_ ) ) {
+          ROS_ERROR("Parameter ki_vel_gain not specified");
           return false;
         }
 //        if( !nh.getParam( "/trikey/base_controller/damping_gain", damping_gain_ ) ) {
@@ -156,6 +167,7 @@ namespace trikey_base_controller
         kinematics_calculator->initialize_H(wheel_radius, distance_wheel_to_chassis);
         cmd_sub_ = nh.subscribe("/trikey/base_controller/cmd_vel", 1, &TrikeyBaseController::cmdVelCallback, this);
         kp_vel_sub_ = nh.subscribe("/trikey/base_controller/kp_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
+        ki_vel_sub_ = nh.subscribe("/trikey/base_controller/ki_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
         vel_filter_sub_ = nh.subscribe("/trikey/base_controller/vel_filter_tau", 1, &TrikeyBaseController::cmdVelFilterCallback, this);
         //TODO remove ground truth subscriber and compute and publish estimate
         // ground_truth_sub_ = nh.subscribe("/odom", 1, &TrikeyBaseController::odometryCallback, this);
@@ -195,7 +207,18 @@ namespace trikey_base_controller
     void TrikeyBaseController::update(const ros::Time& time, const ros::Duration& period)
     {
 
-      
+    
+        // Get time
+        unsigned long timestamp_now = time.toNSec();
+        float Ts = (timestamp_now - timestamp_prev_) * 1e-9;
+
+        // quick fix for strange case
+        if (Ts <= 0 || Ts > 0.5) Ts = 1e-3;
+
+
+
+
+
         // get velocities in vector form for filtering later on
         for(unsigned int j = 0; j < joints_.size(); j++) {
           raw_velocities_[j] = joints_[j].getVelocity();
@@ -207,38 +230,7 @@ namespace trikey_base_controller
 
         //compute odometry estimate => Odometry estimated by separate node with Lidar
 
-        // TODO: limit velocities and accelerations
-
-        // Limit velocities <= garbage, fix it later
-        // for(unsigned int j = 0; j < joints_.size(); j++) {
-        
-        //     if (cmd_wheel_velocities_[j] > 0.5) {
-        //       cmd_wheel_velocities_[j] = 0.5;
-        //     }
-        //     else if (cmd_wheel_velocities_[j] < -0.5) {
-        //       cmd_wheel_velocities_[j] = -0.5;
-        //     }
-        // }
-        
-        // // Limit accelerations
-        // for(unsigned int j = 0; j < joints_.size(); j++) {
-        //     double delta_vel = cmd_wheel_velocities_[j] - prev_cmd_wheel_velocities_[j];
-        //     double dt = period.toSec(); // ROS Duration to seconds
-            
-        //     // Calculate actual acceleration
-        //     double accel = delta_vel / dt;
-            
-        //     // Limit acceleration
-        //     if (std::abs(accel) > MAX_ACCEL) {
-        //         accel = std::copysign(MAX_ACCEL, accel); // Keep the sign of acceleration
-        //         cmd_wheel_velocities_[j] = prev_cmd_wheel_velocities_[j] + accel * dt;
-        //     }
-            
-        //     // Update previous velocity for the next iteration
-        //     prev_cmd_wheel_velocities_[j] = cmd_wheel_velocities_[j];
-        // }
-
-
+ 
 
     
         
@@ -274,18 +266,20 @@ namespace trikey_base_controller
     
 
 
-        // Error computation for P controller
+          // P controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
-          // double pos_error = vel_error * dt;
+          double P_term = kp_vel_ * vel_error;
+
+          // I controller
+          double intergal_term = integral_prev_ + ki_vel_ * Ts * 0.5 * (vel_error + vel_error_prev_);
 
 
-          
-          double cmd = kp_vel_ * vel_error + friction_compensation_;
 
-          // double cmd = kp_vel_ * vel_error;
 
-          // No feedback
-          // double cmd = cmd_wheel_velocities_[j];
+          // Feed forward term to compensate for friction
+          double cmd = P_term + friction_compensation_;
+
+
           joints_[j].setCommand(cmd);
         }
 
@@ -313,6 +307,11 @@ namespace trikey_base_controller
     void TrikeyBaseController::cmdKpVelCallback(const std_msgs::Float64 &gain)
     {
       kp_vel_ = std::max(gain.data, 0.);
+    }
+
+    void TrikeyBaseController::cmdKiVelCallback(const std_msgs::Float64 &gain)
+    {
+      ki_vel_ = std::max(gain.data, 0.);
     }
 
 

@@ -88,6 +88,7 @@ namespace trikey_base_controller
 
         void cmdVelCallback(const geometry_msgs::Twist &cmd_vel);
         void cmdKpVelCallback(const std_msgs::Float64 &gain);
+        void cmdKiVelCallback(const std_msgs::Float64 &gain);
         void cmdVelFilterCallback(const std_msgs::Float64 &gain);
         void computeWheelVelocities(const CommandTwist cmd_twist,
                                     Eigen::Vector3d &cmd_wheel_velocities);
@@ -101,10 +102,20 @@ namespace trikey_base_controller
     private:
         std::vector<hardware_interface::JointHandle> joints_;
         double dt_;
-        double kp_vel_;
-        double ki_pos_;
         double vel_filter_tau_;
         double MAX_ACCEL; 
+
+
+        /**
+         * PID Terms
+         */
+        unsigned long timestamp_prev_;
+        double kp_vel_;
+        double ki_vel_;
+        double vel_error_prev_;
+        double integral_prev_;
+
+
 
         ExponentialMovingAverageFilter *vel_filter_;
 //        Eigen::Vector3d noisy_joints_vel_;  // TODO remove, for testing purposes only
@@ -120,6 +131,7 @@ namespace trikey_base_controller
 
         ros::Subscriber cmd_sub_;
         ros::Subscriber kp_vel_sub_;
+        ros::Subscriber ki_vel_sub_;
         ros::Subscriber vel_filter_sub_;
 
         realtime_tools::RealtimeBuffer<CommandTwist> command_twist_;
