@@ -137,10 +137,10 @@ namespace trikey_base_controller
           return false;
         }
 
-        //  if( !nh.getParam( "/trikey/base_controller/ki_vel_gain", ki_vel_ ) ) {
-        //   ROS_ERROR("Parameter ki_vel_gain not specified");
-        //   return false;
-        // }
+         if( !nh.getParam( "/trikey/base_controller/ki_vel_gain", ki_vel_ ) ) {
+          ROS_ERROR("Parameter ki_vel_gain not specified");
+          return false;
+        }
 //        if( !nh.getParam( "/trikey/base_controller/damping_gain", damping_gain_ ) ) {
 //          ROS_ERROR("Parameter damping_gain not specified");
 //          return false;
@@ -167,7 +167,7 @@ namespace trikey_base_controller
         kinematics_calculator->initialize_H(wheel_radius, distance_wheel_to_chassis);
         cmd_sub_ = nh.subscribe("/trikey/base_controller/cmd_vel", 1, &TrikeyBaseController::cmdVelCallback, this);
         kp_vel_sub_ = nh.subscribe("/trikey/base_controller/kp_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
-        // ki_vel_sub_ = nh.subscribe("/trikey/base_controller/ki_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
+        ki_vel_sub_ = nh.subscribe("/trikey/base_controller/ki_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
         vel_filter_sub_ = nh.subscribe("/trikey/base_controller/vel_filter_tau", 1, &TrikeyBaseController::cmdVelFilterCallback, this);
         //TODO remove ground truth subscriber and compute and publish estimate
         // ground_truth_sub_ = nh.subscribe("/odom", 1, &TrikeyBaseController::odometryCallback, this);
@@ -275,7 +275,7 @@ namespace trikey_base_controller
 
 
           // Feed forward term to compensate for friction
-          double cmd = P_term + friction_compensation_;
+          double cmd = P_term + intergal_term + friction_compensation_;
 
 
           joints_[j].setCommand(cmd);
@@ -307,10 +307,10 @@ namespace trikey_base_controller
       kp_vel_ = std::max(gain.data, 0.);
     }
 
-    // void TrikeyBaseController::cmdKiVelCallback(const std_msgs::Float64 &gain)
-    // {
-    //   ki_vel_ = std::max(gain.data, 0.);
-    // }
+    void TrikeyBaseController::cmdKiVelCallback(const std_msgs::Float64 &gain)
+    {
+      ki_vel_ = std::max(gain.data, 0.);
+    }
 
 
     void TrikeyBaseController::cmdVelFilterCallback(const std_msgs::Float64 &time_constant)
