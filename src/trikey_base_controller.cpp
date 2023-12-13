@@ -218,9 +218,6 @@ namespace trikey_base_controller
         if (Ts <= 0 || Ts > 0.5) Ts = 1e-3;
 
 
-
-
-
         // get velocities in vector form for filtering later on
         for(unsigned int j = 0; j < joints_.size(); j++) {
           raw_velocities_[j] = joints_[j].getVelocity();
