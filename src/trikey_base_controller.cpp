@@ -265,16 +265,14 @@ namespace trikey_base_controller
             // ROS_INFO("friction compensation w2: %f", friction_compensation);
           }
 
-    
-
-
           // P controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
           double P_term = kp_vel_ * vel_error;
+          vel_error_prev_[j] = vel_error;
 
           // I controller
           double intergal_term = integral_prev_[j] + ki_vel_ * Ts * 0.5 * (vel_error + vel_error_prev_[j]);
-
+          integral_prev_[j] = intergal_term;
 
           // Feed forward term to compensate for friction
           double cmd = P_term + intergal_term + friction_compensation_;
@@ -299,6 +297,9 @@ namespace trikey_base_controller
           cmd_wheel_vel_pub_->msg_.header.stamp = ros::Time::now();
           cmd_wheel_vel_pub_->unlockAndPublish();
         }
+
+        // update previous timestamp
+        timestamp_prev_ = timestamp_now;
     }
 
     //Controller exiting
