@@ -112,8 +112,8 @@ namespace trikey_base_controller
         unsigned long timestamp_prev_;
         double kp_vel_;
         double ki_vel_;
-        double vel_error_prev_;
-        double integral_prev_;
+        std::vector<double> vel_error_prev_;
+        std::vector<double> integral_prev_;
 
 
 

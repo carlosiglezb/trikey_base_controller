@@ -72,12 +72,9 @@ namespace trikey_base_controller
 
         // initialize previous timestamp
         timestamp_prev_ = 0.0;
-        // initialize PID terms
-        integral_prev_ = 0.0;
-        vel_error_prev_ = 0.0;
+        
 
 
-    
     }
 
     TrikeyBaseController::~TrikeyBaseController()
@@ -118,6 +115,11 @@ namespace trikey_base_controller
         filt_vel_pub_->msg_.velocity.resize(joint_names.size());
         cmd_wheel_vel_pub_->msg_.name.resize(joint_names.size());
         cmd_wheel_vel_pub_->msg_.velocity.resize(joint_names.size());
+
+        // previous term for PI
+        integral_prev_.resize(joint_names.size());
+        vel_error_prev_.resize(joint_names.size());
+
 
         for(int index = 0; index < joint_names.size(); index++)
         {
