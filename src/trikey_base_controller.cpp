@@ -273,7 +273,7 @@ namespace trikey_base_controller
           double P_term = kp_vel_ * vel_error;
 
           // I controller
-          double intergal_term = integral_prev_ + ki_vel_ * Ts * 0.5 * (vel_error + vel_error_prev_);
+          double intergal_term = integral_prev_[j] + ki_vel_ * Ts * 0.5 * (vel_error + vel_error_prev_[j]);
 
 
           // Feed forward term to compensate for friction
