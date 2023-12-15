@@ -172,7 +172,7 @@ namespace trikey_base_controller
         ki_vel_sub_ = nh.subscribe("/trikey/base_controller/ki_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
         vel_filter_sub_ = nh.subscribe("/trikey/base_controller/vel_filter_tau", 1, &TrikeyBaseController::cmdVelFilterCallback, this);
         //TODO remove ground truth subscriber and compute and publish estimate
-        ground_truth_sub_ = nh.subscribe("/odom", 1, &TrikeyBaseController::odometryCallback, this);
+        // ground_truth_sub_ = nh.subscribe("/odom", 1, &TrikeyBaseController::odometryCallback, this);
 //        filt_vel_pub_.init(nh, "/trikey/base_controller/filt_velocities", 5);
 
         ROS_INFO("Finished controller initialization");
@@ -373,10 +373,17 @@ namespace trikey_base_controller
         // Compute odometry
         Eigen::Vector3d twist;
         twist = kinematics_calculator->get_H_pinv()*filtered_velocities_;
-        wheel_odom_.twist.twist.angular.z = twist(0);
-        wheel_odom_.twist.twist.linear.x  = twist(1);
-        wheel_odom_.twist.twist.linear.y  = twist(2);
-
+        // wheel_odom_.twist.twist.angular.z = twist(0);
+        // wheel_odom_.twist.twist.linear.x  = twist(1);
+        // wheel_odom_.twist.twist.linear.y  = twist(2);
+        // Debug: set odometry to zero
+        wheel_odom_.pose.pose.position.x = 0.0;
+        wheel_odom_.pose.pose.position.y = 0.0;
+        wheel_odom_.pose.pose.position.z = 0.0;
+        wheel_odom_.pose.pose.orientation.w = 1.0;
+        wheel_odom_.pose.pose.orientation.x = 0.0;
+        wheel_odom_.pose.pose.orientation.y = 0.0;
+        wheel_odom_.pose.pose.orientation.z = 0.0;
     }    
 
     void TrikeyBaseController::updateOdometry(const nav_msgs::Odometry& odometry_)
@@ -385,10 +392,6 @@ namespace trikey_base_controller
         if (odom_pub_->trylock())
         {
             odom_pub_->msg_.header.stamp = ros::Time::now();
-            odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
-            odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
-            odom_pub_->msg_.pose.pose.position.z = odometry_.pose.pose.position.z;
-            odom_pub_->msg_.pose.pose.orientation = odometry_.pose.pose.orientation;
             odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
             odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
             odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
