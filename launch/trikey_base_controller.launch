@@ -2,7 +2,7 @@
 <launch>
   <arg name="real_robot" default="true"/>
   <arg name="xbox" default="true"/>
-  <arg name="noetic" default="true"/>
+
 
   <arg name="joy_config" default="xbox" />
   <arg name="joy_dev" default="/dev/input/js0" />
@@ -26,24 +26,17 @@
   <group if="$(arg real_robot)">
 
 
-    <group if ="$(arg noetic)">
+    <!-- <group>
       <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
         <arg name="filter" value="true"/>
         <arg name ="rviz" value="false"/>
         <arg name="noetic" value="true"/>
         <arg name="alpha_value" value="0.1"/>
       </include>
-    </group>
+    </group> -->
 
-    <group unless ="$(arg noetic)">
-      <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
-        <arg name="filter" value="true"/>
-        <arg name ="rviz" value="false"/>
-        <arg name="noetic" value="false"/>
-        <arg name="alpha_value" value="0.1"/>
-      </include>
-    </group>
-  
+
+
     <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
       output="screen" args="trikey/base_controller"/>
 

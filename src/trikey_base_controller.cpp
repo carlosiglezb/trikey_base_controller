@@ -192,6 +192,10 @@ namespace trikey_base_controller
         return true;
     }
 
+    //compute Odom
+    // void TrikeyBaseController::computeOdometry(double dt, Eigen::Vector3d &cmd_wheel_velocities){
+    // }
+
     //Controller startup (real-time)
     void TrikeyBaseController::starting(const ros::Time& time) {
         //Get initial position to use in the control procedure
@@ -227,13 +231,6 @@ namespace trikey_base_controller
         // Read desired twist sent from user/external controller
         CommandTwist curr_cmd_twist = *(command_twist_.readFromRT());
 
-        //compute odometry estimate => Odometry estimated by separate node with Lidar
-
- 
-
-    
-        
-
         // compute corresponding desired wheel velocities
         computeWheelVelocities(curr_cmd_twist, cmd_wheel_velocities_);
 
@@ -243,6 +240,11 @@ namespace trikey_base_controller
         // ROS_INFO("friction compensation");
         // Set wheels torques (TODO add torque sensor readings and/or implement velocity control)
         filtered_velocities_ = vel_filter_->output();
+
+
+        //compute odometry estimate => Odometry estimated by separate node with Lidar
+        computeOdometry(filtered_velocities_, wheel_odom_);
+        updateOdometry(wheel_odom_);
 
   
 
@@ -366,21 +368,32 @@ namespace trikey_base_controller
         tf_odom_pub_->msg_.transforms[0].transform.rotation = ground_truth_.pose.pose.orientation;
     }
 
+    void TrikeyBaseController::computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_)
+    {
+        // Compute odometry
+        Eigen::Vector3d twist;
+        twist = kinematics_calculator->get_H_pinv()*filtered_velocities_;
+        wheel_odom_.twist.twist.angular.z = twist(0);
+        wheel_odom_.twist.twist.linear.x  = twist(1);
+        wheel_odom_.twist.twist.linear.y  = twist(2);
+
+    }    
+
     void TrikeyBaseController::updateOdometry(const nav_msgs::Odometry& odometry_)
     {
         // Populate odom message and publish
-        // if (odom_pub_->trylock())
-        // {
-        //     odom_pub_->msg_.header.stamp = ros::Time::now();
-        //     odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
-        //     odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
-        //     odom_pub_->msg_.pose.pose.position.z = odometry_.pose.pose.position.z;
-        //     odom_pub_->msg_.pose.pose.orientation = odometry_.pose.pose.orientation;
-        //     odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
-        //     odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
-        //     odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
-        //     odom_pub_->unlockAndPublish();
-        // }
+        if (odom_pub_->trylock())
+        {
+            odom_pub_->msg_.header.stamp = ros::Time::now();
+            odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
+            odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
+            odom_pub_->msg_.pose.pose.position.z = odometry_.pose.pose.position.z;
+            odom_pub_->msg_.pose.pose.orientation = odometry_.pose.pose.orientation;
+            odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
+            odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
+            odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
+            odom_pub_->unlockAndPublish();
+        }
 
 
 

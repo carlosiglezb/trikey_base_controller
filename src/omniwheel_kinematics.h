@@ -14,11 +14,14 @@ public:
 
     void initialize_H(double wheel_radius, double wheel_to_chassis_center);
     Eigen::Matrix3d get_H(void);
+    Eigen::Matrix3d get_H_pinv(void);
 
 private:
     double wheel_vel_limit_;
 
     Eigen::Matrix3d H_mat;
+
+    Eigen::Matrix3d H_pinv_mat;
 
 };
 

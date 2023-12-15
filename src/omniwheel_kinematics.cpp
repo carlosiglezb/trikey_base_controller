@@ -30,3 +30,14 @@ void OmniwheelKinematics::initialize_H(double wheel_radius, double wheel_to_chas
 }
 
 Eigen::Matrix3d OmniwheelKinematics::get_H() {return H_mat;}
+
+Eigen::Matrix3d OmniwheelKinematics::get_H_pinv()
+{
+    if (H_pinv_mat.isZero())
+    {
+        H_pinv_mat = H_mat.completeOrthogonalDecomposition().pseudoInverse();
+    }
+    return H_pinv_mat;
+}
+
+

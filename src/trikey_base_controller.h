@@ -95,6 +95,7 @@ namespace trikey_base_controller
         void setupOdomPublishers(ros::NodeHandle &nh);
         void odometryCallback(const nav_msgs::Odometry& odom);
         void updateOdometry(const nav_msgs::Odometry& odom);
+        void computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_);
         
          
         
@@ -154,6 +155,7 @@ namespace trikey_base_controller
         std::string base_frame_;
 
         nav_msgs::Odometry ground_truth_;
+        nav_msgs::Odometry wheel_odom_;
 
     
       
