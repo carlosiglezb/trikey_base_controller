@@ -365,7 +365,7 @@ namespace trikey_base_controller
         tf_odom_pub_->msg_.transforms[0].transform.rotation.w = 1.0;
         tf_odom_pub_->msg_.transforms[0].header.frame_id = odom_frame_;
         tf_odom_pub_->msg_.transforms[0].child_frame_id = base_frame_;
-        tf_odom_pub_->msg_.transforms[0].transform.rotation = ground_truth_.pose.pose.orientation;
+        // tf_odom_pub_->msg_.transforms[0].transform.rotation = ground_truth_.pose.pose.orientation;
     }
 
     void TrikeyBaseController::computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_)
