@@ -244,7 +244,7 @@ namespace trikey_base_controller
 
         //compute odometry estimate => Odometry estimated by separate node with Lidar
         computeOdometry(filtered_velocities_, wheel_odom_);
-        updateOdometry(wheel_odom_);
+        updateOdometry(ground_truth_);
 
   
 
