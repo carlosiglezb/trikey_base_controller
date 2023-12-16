@@ -243,7 +243,7 @@ namespace trikey_base_controller
 
 
         //compute odometry estimate => Odometry estimated by separate node with Lidar
-        computeOdometry(filtered_velocities_, wheel_odom_);
+        computeOdometry(filtered_velocities_, wheel_odom_, time);
         updateOdometry(wheel_odom_);
 
   
@@ -368,23 +368,39 @@ namespace trikey_base_controller
         // tf_odom_pub_->msg_.transforms[0].transform.rotation = ground_truth_.pose.pose.orientation;
     }
 
-    void TrikeyBaseController::computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_)
+    void TrikeyBaseController::computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_, const ros::Time& current_time)
     {
-        // Compute odometry
-        Eigen::Vector3d twist;
-        twist = kinematics_calculator->get_H_pinv()*filtered_velocities_;
-        // wheel_odom_.twist.twist.angular.z = twist(0);
-        // wheel_odom_.twist.twist.linear.x  = twist(1);
-        // wheel_odom_.twist.twist.linear.y  = twist(2);
-        // Debug: set odometry to zero
-        wheel_odom_.pose.pose.position.x = 0.0;
-        wheel_odom_.pose.pose.position.y = 0.0;
-        wheel_odom_.pose.pose.position.z = 0.0;
-        wheel_odom_.pose.pose.orientation.w = 1.0;
-        wheel_odom_.pose.pose.orientation.x = 0.0;
-        wheel_odom_.pose.pose.orientation.y = 0.0;
-        wheel_odom_.pose.pose.orientation.z = 0.0;
-    }    
+        // Static variable to store the last time computeOdometry was called
+        static ros::Time last_time = current_time;
+
+        // Calculate the time difference (dt)
+        double dt = (current_time - last_time).toSec();
+        last_time = current_time;
+
+        // Compute twist (linear and angular velocities)
+        Eigen::Vector3d twist = kinematics_calculator->get_H_pinv() * filtered_velocities_;
+
+        // Update odometry based on twist and time elapsed
+
+        // Update linear position
+        wheel_odom_.pose.pose.position.x += twist[0] * dt;
+        wheel_odom_.pose.pose.position.y += twist[1] * dt;
+        wheel_odom_.pose.pose.position.z = 0.0; 
+
+        // Update angular position (yaw)
+          double yaw = tf::getYaw(wheel_odom_.pose.pose.orientation);
+          yaw += twist[2] * dt; 
+
+          // Convert the updated yaw to a quaternion
+          tf::Quaternion new_orientation = tf::createQuaternionFromYaw(yaw);
+          tf::quaternionTFToMsg(new_orientation, wheel_odom_.pose.pose.orientation);
+
+          // Update the twist in the odometry message
+          wheel_odom_.twist.twist.linear.x = twist[0];
+          wheel_odom_.twist.twist.linear.y = twist[1];
+          wheel_odom_.twist.twist.angular.z = twist[2];
+
+    }
 
     void TrikeyBaseController::updateOdometry(const nav_msgs::Odometry& odometry_)
     {

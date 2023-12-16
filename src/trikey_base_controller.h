@@ -53,6 +53,7 @@
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/JointState.h>
 #include <tf/tfMessage.h>
+#include <tf/transform_datatypes.h>
 
 #include "filters.hpp"
 #include <random>   //TODO remove
@@ -95,7 +96,7 @@ namespace trikey_base_controller
         void setupOdomPublishers(ros::NodeHandle &nh);
         void odometryCallback(const nav_msgs::Odometry& odom);
         void updateOdometry(const nav_msgs::Odometry& odom);
-        void computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_);
+        void computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_, const ros::Time &current_time);
         
          
         
@@ -105,6 +106,7 @@ namespace trikey_base_controller
         double dt_;
         double vel_filter_tau_;
         double MAX_ACCEL; 
+
 
 
         /**
