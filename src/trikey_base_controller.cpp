@@ -395,6 +395,12 @@ namespace trikey_base_controller
         // tf::Quaternion new_orientation = tf::createQuaternionFromYaw(yaw);
         // tf::quaternionTFToMsg(new_orientation, wheel_odom_.pose.pose.orientation);
 
+        // Update the odometry orientation to zero
+        wheel_odom_.pose.pose.orientation.w = 1.0;
+        wheel_odom_.pose.pose.orientation.x = 0.0;
+        wheel_odom_.pose.pose.orientation.y = 0.0;
+        wheel_odom_.pose.pose.orientation.z = 0.0;
+
         // Update the twist in the odometry message
         wheel_odom_.twist.twist.linear.x = twist[0];
         wheel_odom_.twist.twist.linear.y = twist[1];
