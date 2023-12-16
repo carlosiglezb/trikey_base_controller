@@ -383,9 +383,10 @@ namespace trikey_base_controller
         // Update odometry based on twist and time elapsed
 
         // Update linear position
-        wheel_odom_.pose.pose.position.x += twist[0] * dt;
-        wheel_odom_.pose.pose.position.y += twist[1] * dt;
+        wheel_odom_.pose.pose.position.x += twist[1] * dt;
+        wheel_odom_.pose.pose.position.y += twist[2] * dt;
         wheel_odom_.pose.pose.position.z = 0.0; 
+
 
         // Update angular position (yaw)
         double yaw = tf::getYaw(wheel_odom_.pose.pose.orientation);
