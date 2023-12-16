@@ -43,7 +43,7 @@ namespace trikey_base_controller
     TrikeyBaseController::TrikeyBaseController()
     : command_struct_twist_(),
         base_frame_("base_link"),
-        odom_frame_("world")
+        odom_frame_("odom")
     {
         dt_ = 0.001;
         kp_vel_ = 0.;
@@ -388,17 +388,17 @@ namespace trikey_base_controller
         wheel_odom_.pose.pose.position.z = 0.0; 
 
         // Update angular position (yaw)
-          double yaw = tf::getYaw(wheel_odom_.pose.pose.orientation);
-          yaw += twist[2] * dt; 
+        double yaw = tf::getYaw(wheel_odom_.pose.pose.orientation);
+        yaw += twist[2] * dt; 
 
-          // Convert the updated yaw to a quaternion
-          tf::Quaternion new_orientation = tf::createQuaternionFromYaw(yaw);
-          tf::quaternionTFToMsg(new_orientation, wheel_odom_.pose.pose.orientation);
+        // Convert the updated yaw to a quaternion
+        // tf::Quaternion new_orientation = tf::createQuaternionFromYaw(yaw);
+        // tf::quaternionTFToMsg(new_orientation, wheel_odom_.pose.pose.orientation);
 
-          // Update the twist in the odometry message
-          wheel_odom_.twist.twist.linear.x = twist[0];
-          wheel_odom_.twist.twist.linear.y = twist[1];
-          wheel_odom_.twist.twist.angular.z = twist[2];
+        // Update the twist in the odometry message
+        wheel_odom_.twist.twist.linear.x = twist[0];
+        wheel_odom_.twist.twist.linear.y = twist[1];
+        wheel_odom_.twist.twist.angular.z = twist[2];
 
     }
 
