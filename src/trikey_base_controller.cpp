@@ -394,6 +394,7 @@ namespace trikey_base_controller
         q.setRPY(0.0, 0.0, yaw);
         // Normalize the quaternion
         q.normalize();
+        ROS_INFO_STREAM("x: " << q.getX() << " y: " << q.getY() << " z: " << q.getZ() << " w: " << q.getW());
 
         // Update the odometry orientation
         wheel_odom_.pose.pose.orientation.x = q.getX();
