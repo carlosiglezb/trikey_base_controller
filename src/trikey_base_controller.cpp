@@ -386,7 +386,7 @@ namespace trikey_base_controller
         wheel_odom_.pose.pose.position.z = 0.0;  // 2D robot
 
         // Update angular position (yaw)
-        double yaw = tf::getYaw(wheel_odom_.pose.pose.orientation);
+        double yaw;
         yaw += twist[0] * dt; 
 
         // Convert the updated yaw to a quaternion
@@ -403,9 +403,10 @@ namespace trikey_base_controller
         wheel_odom_.pose.pose.orientation.w = q.getW();
 
         // Update the twist in the odometry message
-        wheel_odom_.twist.twist.linear.x = twist[0];
-        wheel_odom_.twist.twist.linear.y = twist[1];
-        wheel_odom_.twist.twist.angular.z = twist[2];
+        wheel_odom_.twist.twist.angular.z = twist[0];
+        wheel_odom_.twist.twist.linear.x = twist[1];
+        wheel_odom_.twist.twist.linear.y = twist[2];
+        
 
     }
 
