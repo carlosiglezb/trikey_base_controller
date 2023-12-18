@@ -1,13 +1,14 @@
 <?xml version="1.0" ?>
 <launch>
+  <!-- Argu,emts -->
   <arg name="real_robot" default="true"/>
-  <arg name="xbox" default="true"/>
-
-
+  <arg name="xbox" default="false"/>
+  <arg name="rviz" default="true"/>
   <arg name="joy_config" default="xbox" />
   <arg name="joy_dev" default="/dev/input/js0" />
   <arg name="config_filepath" default="$(find bumpybot_teleop)/config/$(arg joy_config).config.yaml" />
   <arg name="joy_topic" default="joy" />
+
   <!-- load house world -->
 <!--  <include file="$(find trikey_gazebo)/launch/house.launch" />-->
 
@@ -25,7 +26,7 @@
 
   <group if="$(arg real_robot)">
 
-
+    <!-- Lidar Odom -->
     <!-- <group>
       <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
         <arg name="filter" value="true"/>
@@ -69,16 +70,24 @@
         <remap from="joy" to="$(arg joy_topic)" />
     </node>
     
-    <node name="velocity_smoother" pkg="bumpybot_teleop" type="velocity_smoother.py">
+    <node name="velocity_smoother" pkg="bumpybot_teleop" type="velocity_smoother.py"/>
 
-    </node>
+      <!-- If controlled by Xbox disable Rviz teleop GUI -->
+      <group if="$(arg rviz)">
+        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find bumpybot_navigation)/config/navigation.rviz"/>
+      </group>
   </group>
-
 
   <group unless="$(arg xbox)">
-   <node name="rviz" pkg="rviz" type="rviz"
-    args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz" /> 
+    <!-- If not controlled by Xbox enable Rviz teleop GUI -->
+    <group if="$(arg rviz)">
+        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel_tuning.rviz"/>
+      </group>
   </group>
+
+
+
+
 
 
 </launch>

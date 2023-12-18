@@ -423,7 +423,7 @@ namespace trikey_base_controller
         }
 
         // Publish tf for base w.r.t. world
-        if (publish_tf) {
+ 
           if(tf_odom_pub_->trylock())
           {
               geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
@@ -436,7 +436,7 @@ namespace trikey_base_controller
               odom_frame.transform.rotation = odometry_.pose.pose.orientation;
               tf_odom_pub_->unlockAndPublish();
           }
-        }
+        
     } 
 
     void TrikeyBaseController::filterOdometry(const nav_msgs::Odometry& odometry_)
