@@ -81,7 +81,7 @@
   <group unless="$(arg xbox)">
     <!-- If not controlled by Xbox enable Rviz teleop GUI -->
     <group if="$(arg rviz)">
-      <node pkg="rviz" type="rviz" name="rviz" args="-d $(find bumpybot_navigation)/config/teleop_cmd_vel.rviz"/>
+      <node pkg="rviz" type="rviz" name="rviz" args="-d $(find trikey_base_controller)/rviz/teleop_cmd_vel.rviz"/>
     </group>
   </group>
 

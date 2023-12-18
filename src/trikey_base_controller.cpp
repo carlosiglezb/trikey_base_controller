@@ -395,14 +395,24 @@ namespace trikey_base_controller
         // Normalize the quaternion
         q.normalize();
 
-        //debug orientation
-        ROS_INFO(" x: %f, y: %f, z: %f, w: %f", q.x(), q.y(), q.z(), q.w());
+        // check if quaternion is valid
+        if (!std::isfinite(q.x()) || !std::isfinite(q.y()) || !std::isfinite(q.z()) || !std::isfinite(q.w()))
+        {
+          ROS_WARN_THROTTLE(1.0, "Quaternion is invalid, Ignoring Quaternion update!");
+        }
+        else 
+        {
+          // Update the odometry orientation
+          wheel_odom_.pose.pose.orientation.x = q.x();
+          wheel_odom_.pose.pose.orientation.y = q.y();
+          wheel_odom_.pose.pose.orientation.z = q.z();
+          wheel_odom_.pose.pose.orientation.w = q.w();
+        }
+
+        
+
+
   
-        // Update the odometry orientation
-        wheel_odom_.pose.pose.orientation.x = q.x();
-        wheel_odom_.pose.pose.orientation.y = q.y();
-        wheel_odom_.pose.pose.orientation.z = q.z();
-        wheel_odom_.pose.pose.orientation.w = q.w();
  
         // Update the twist in the odometry message
         wheel_odom_.twist.twist.angular.z = twist[0];
