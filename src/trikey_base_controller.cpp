@@ -418,10 +418,6 @@ namespace trikey_base_controller
             odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
             odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
             odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
-            odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
-            odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
-            odom_pub_->msg_.pose.pose.position.z = odometry_.pose.pose.position.z;
-            odom_pub_->msg_.pose.pose.orientation = odometry_.pose.pose.orientation;
             odom_pub_->unlockAndPublish();
         }
 
@@ -436,7 +432,10 @@ namespace trikey_base_controller
               odom_frame.transform.translation.x = odometry_.pose.pose.position.x;
               odom_frame.transform.translation.y = odometry_.pose.pose.position.y;
               odom_frame.transform.translation.z = odometry_.pose.pose.position.z;
-              odom_frame.transform.rotation = odometry_.pose.pose.orientation;
+              odom_frame.transform.rotation.x = odometry_.pose.pose.orientation.x;
+              odom_frame.transform.rotation.y = odometry_.pose.pose.orientation.y;
+              odom_frame.transform.rotation.z = odometry_.pose.pose.orientation.z;
+              odom_frame.transform.rotation.w = odometry_.pose.pose.orientation.w;
               tf_odom_pub_->unlockAndPublish();
           }
         
