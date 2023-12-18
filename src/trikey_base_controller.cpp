@@ -396,15 +396,11 @@ namespace trikey_base_controller
         q.normalize();
   
         // Update the odometry orientation
-        // wheel_odom_.pose.pose.orientation.x = q.getX();
-        // wheel_odom_.pose.pose.orientation.y = q.getY();
-        // wheel_odom_.pose.pose.orientation.z = q.getZ();
-        // wheel_odom_.pose.pose.orientation.w = q.getW();
-        wheel_odom_.pose.pose.orientation.x = 0.0;
-        wheel_odom_.pose.pose.orientation.y = 0.0;
-        wheel_odom_.pose.pose.orientation.z = 0.0;
-        wheel_odom_.pose.pose.orientation.w = 1.0;
-
+        wheel_odom_.pose.pose.orientation.x = q.x();
+        wheel_odom_.pose.pose.orientation.y = q.y();
+        wheel_odom_.pose.pose.orientation.z = q.z();
+        wheel_odom_.pose.pose.orientation.w = q.w();
+ 
         // Update the twist in the odometry message
         wheel_odom_.twist.twist.angular.z = twist[0];
         wheel_odom_.twist.twist.linear.x = twist[1];
@@ -422,6 +418,10 @@ namespace trikey_base_controller
             odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
             odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
             odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
+            odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
+            odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
+            odom_pub_->msg_.pose.pose.position.z = odometry_.pose.pose.position.z;
+            odom_pub_->msg_.pose.pose.orientation = odometry_.pose.pose.orientation;
             odom_pub_->unlockAndPublish();
         }
 
