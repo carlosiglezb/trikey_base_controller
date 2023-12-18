@@ -47,7 +47,7 @@ namespace trikey_base_controller
     {
         dt_ = 0.001;
         kp_vel_ = 0.;
-        // ki_vel_ = 0.;
+        ki_vel_ = 0.;
 //        damping_gain_ = 0.;
         vel_filter_tau_ = 0.01;
         kinematics_calculator = new OmniwheelKinematics();
@@ -87,7 +87,7 @@ namespace trikey_base_controller
         delete karnopp_compensator_;
         cmd_sub_.shutdown();
         kp_vel_sub_.shutdown();
-        // ki_vel_sub_.shutdown();
+        ki_vel_sub_.shutdown();
 //        damping_gain_sub_.shutdown();
         vel_filter_sub_.shutdown();
         ground_truth_sub_.shutdown();
