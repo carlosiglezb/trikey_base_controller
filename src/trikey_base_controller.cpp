@@ -242,9 +242,9 @@ namespace trikey_base_controller
         filtered_velocities_ = vel_filter_->output();
 
 
-        //compute odometry estimate => Odometry estimated by separate node with Lidar
+        //compute odometry and publish odom topic and tf (optional)
         computeOdometry(filtered_velocities_, wheel_odom_, time);
-        updateOdometry(wheel_odom_);
+        updateOdometry(wheel_odom_, true);
 
   
 
@@ -380,27 +380,26 @@ namespace trikey_base_controller
         // Compute twist (linear and angular velocities)
         Eigen::Vector3d twist = kinematics_calculator->get_H_pinv() * filtered_velocities_;
 
-        // Update odometry based on twist and time elapsed
-
         // Update linear position
         wheel_odom_.pose.pose.position.x += twist[1] * dt;
         wheel_odom_.pose.pose.position.y += twist[2] * dt;
-        wheel_odom_.pose.pose.position.z = 0.0; 
-
+        wheel_odom_.pose.pose.position.z = 0.0;  // 2D robot
 
         // Update angular position (yaw)
         double yaw = tf::getYaw(wheel_odom_.pose.pose.orientation);
         yaw += twist[2] * dt; 
 
         // Convert the updated yaw to a quaternion
-        // tf::Quaternion new_orientation = tf::createQuaternionFromYaw(yaw);
-        // tf::quaternionTFToMsg(new_orientation, wheel_odom_.pose.pose.orientation);
+        tf2::Quaternion q;
+        q.setRPY(0.0, 0.0, yaw);
+        // Normalize the quaternion
+        q.normalize();
 
-        // Update the odometry orientation to zero
-        wheel_odom_.pose.pose.orientation.w = 1.0;
-        wheel_odom_.pose.pose.orientation.x = 0.0;
-        wheel_odom_.pose.pose.orientation.y = 0.0;
-        wheel_odom_.pose.pose.orientation.z = 0.0;
+        // Update the odometry orientation
+        wheel_odom_.pose.pose.orientation.x = q.getX();
+        wheel_odom_.pose.pose.orientation.y = q.getY();
+        wheel_odom_.pose.pose.orientation.z = q.getZ();
+        wheel_odom_.pose.pose.orientation.w = q.getW();
 
         // Update the twist in the odometry message
         wheel_odom_.twist.twist.linear.x = twist[0];
@@ -409,7 +408,7 @@ namespace trikey_base_controller
 
     }
 
-    void TrikeyBaseController::updateOdometry(const nav_msgs::Odometry& odometry_)
+    void TrikeyBaseController::updateOdometry(const nav_msgs::Odometry& odometry_,bool publish_tf)
     {
         // Populate odom message and publish
         if (odom_pub_->trylock())
@@ -421,22 +420,22 @@ namespace trikey_base_controller
             odom_pub_->unlockAndPublish();
         }
 
-
-
         // Publish tf for base w.r.t. world
-        if(tf_odom_pub_->trylock())
-        {
-            geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
-            odom_frame.header.stamp = ros::Time::now();
-            odom_frame.header.frame_id = odom_frame_;
-            odom_frame.child_frame_id = base_frame_;
-            odom_frame.transform.translation.x = odometry_.pose.pose.position.x;
-            odom_frame.transform.translation.y = odometry_.pose.pose.position.y;
-            odom_frame.transform.translation.z = odometry_.pose.pose.position.z;
-            odom_frame.transform.rotation = odometry_.pose.pose.orientation;
-            tf_odom_pub_->unlockAndPublish();
+        if (publish_tf) {
+          if(tf_odom_pub_->trylock())
+          {
+              geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
+              odom_frame.header.stamp = ros::Time::now();
+              odom_frame.header.frame_id = odom_frame_;
+              odom_frame.child_frame_id = base_frame_;
+              odom_frame.transform.translation.x = odometry_.pose.pose.position.x;
+              odom_frame.transform.translation.y = odometry_.pose.pose.position.y;
+              odom_frame.transform.translation.z = odometry_.pose.pose.position.z;
+              odom_frame.transform.rotation = odometry_.pose.pose.orientation;
+              tf_odom_pub_->unlockAndPublish();
+          }
         }
-    }
+    } 
 
     void TrikeyBaseController::filterOdometry(const nav_msgs::Odometry& odometry_)
     {
