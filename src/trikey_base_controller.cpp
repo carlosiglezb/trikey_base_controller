@@ -381,11 +381,16 @@ namespace trikey_base_controller
         // Compute twist (linear and angular velocities)
         Eigen::Vector3d twist = kinematics_calculator->get_H_pinv() * filtered_velocities_;
 
+        // Update the twist in the odometry message
+        wheel_odom_.twist.twist.angular.z = twist[0];
+        wheel_odom_.twist.twist.linear.x = twist[1];
+        wheel_odom_.twist.twist.linear.y = twist[2];
+
         // Update linear position
+        wheel_odom_.pose.pose.position.z = 0.0;  // 2D robot
         wheel_odom_.pose.pose.position.x += twist[1] * dt;
         wheel_odom_.pose.pose.position.y += twist[2] * dt;
-        wheel_odom_.pose.pose.position.z = 0.0;  // 2D robot
-
+        
         // Update angular position (yaw)
         yaw_ += twist[0] * dt; 
 
@@ -402,24 +407,13 @@ namespace trikey_base_controller
         }
         else 
         {
-          // Update the odometry orientation
+          // Update the odometry orientation if the quaternion is valid
           wheel_odom_.pose.pose.orientation.x = q.x();
           wheel_odom_.pose.pose.orientation.y = q.y();
           wheel_odom_.pose.pose.orientation.z = q.z();
           wheel_odom_.pose.pose.orientation.w = q.w();
         }
-
-        
-
-
-  
- 
-        // Update the twist in the odometry message
-        wheel_odom_.twist.twist.angular.z = twist[0];
-        wheel_odom_.twist.twist.linear.x = twist[1];
-        wheel_odom_.twist.twist.linear.y = twist[2];
-        
-
+      
     }
 
     void TrikeyBaseController::updateOdometry(const nav_msgs::Odometry& odometry_,bool publish_tf)
