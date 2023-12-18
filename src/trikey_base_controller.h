@@ -159,6 +159,7 @@ namespace trikey_base_controller
 
         nav_msgs::Odometry ground_truth_;
         nav_msgs::Odometry wheel_odom_;
+        double yaw_;
 
     
       

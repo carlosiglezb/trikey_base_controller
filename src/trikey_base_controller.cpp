@@ -60,6 +60,7 @@ namespace trikey_base_controller
         // odom filter 
         odom_filter_dt_ = 1/lidar_frequency_;
         //(double dt, double period, int dim)
+        yaw_ = 0.0;
 
         odom_filter_ = new FirstOrderLowPassFilter(odom_filter_dt_, 0.1, 3);
 
@@ -386,12 +387,11 @@ namespace trikey_base_controller
         wheel_odom_.pose.pose.position.z = 0.0;  // 2D robot
 
         // Update angular position (yaw)
-        double yaw;
-        yaw += twist[0] * dt; 
+        yaw_ += twist[0] * dt; 
 
         // Convert the updated yaw to a quaternion
         tf2::Quaternion q;
-        q.setRPY(0.0, 0.0, yaw);
+        q.setRPY(0.0, 0.0, yaw_);
         // Normalize the quaternion
         q.normalize();
 
