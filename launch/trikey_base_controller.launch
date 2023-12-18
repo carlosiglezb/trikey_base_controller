@@ -72,17 +72,17 @@
     
     <node name="velocity_smoother" pkg="bumpybot_teleop" type="velocity_smoother.py"/>
 
-      <!-- If controlled by Xbox disable Rviz teleop GUI -->
-      <group if="$(arg rviz)">
-        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find bumpybot_navigation)/config/navigation.rviz"/>
-      </group>
+    <!-- If controlled by Xbox disable Rviz teleop GUI -->
+    <group if="$(arg rviz)">
+        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find trikey_base_controller)/rviz/base_controller.rviz"/>
+    </group>
   </group>
 
   <group unless="$(arg xbox)">
     <!-- If not controlled by Xbox enable Rviz teleop GUI -->
     <group if="$(arg rviz)">
-        <node pkg="rviz" type="rviz" name="rviz" args="-d $(find trikey_base_controller)/rviz/base_controller.rviz"/>
-      </group>
+      <node pkg="rviz" type="rviz" name="rviz" args="-d $(find bumpybot_navigation)/config/teleop_cmd_vel.rviz"/>
+    </group>
   </group>
 
 
