@@ -387,14 +387,14 @@ namespace trikey_base_controller
 
         // Update angular position (yaw)
         double yaw = tf::getYaw(wheel_odom_.pose.pose.orientation);
-        yaw += twist[2] * dt; 
+        yaw += twist[0] * dt; 
 
         // Convert the updated yaw to a quaternion
         tf2::Quaternion q;
         q.setRPY(0.0, 0.0, yaw);
         // Normalize the quaternion
         q.normalize();
-        ROS_INFO_STREAM("x: " << q.getX() << " y: " << q.getY() << " z: " << q.getZ() << " w: " << q.getW());
+        ROS_INFO_STREAM("yaw: " << yaw << "x: " << q.getX() << " y: " << q.getY() << " z: " << q.getZ() << " w: " << q.getW());
 
         // Update the odometry orientation
         wheel_odom_.pose.pose.orientation.x = q.getX();
