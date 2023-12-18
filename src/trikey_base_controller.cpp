@@ -422,6 +422,14 @@ namespace trikey_base_controller
         if (odom_pub_->trylock())
         {
             odom_pub_->msg_.header.stamp = ros::Time::now();
+            odom_pub_->msg_.header.frame_id = odom_frame_; 
+            // set pose
+            odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
+            odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
+            odom_pub_->msg_.pose.pose.position.z = 0.0;
+
+            // set twist
+            odom_pub_->msg_.child_frame_id = base_frame_;
             odom_pub_->msg_.twist.twist.linear.x  = odometry_.twist.twist.linear.x;
             odom_pub_->msg_.twist.twist.linear.y  = odometry_.twist.twist.linear.y;
             odom_pub_->msg_.twist.twist.angular.z = odometry_.twist.twist.angular.z;
@@ -429,7 +437,6 @@ namespace trikey_base_controller
         }
 
         // Publish tf for base w.r.t. world
- 
           if(tf_odom_pub_->trylock())
           {
               geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
