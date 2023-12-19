@@ -172,7 +172,7 @@ namespace trikey_base_controller
         }
 
         // Wheel Odom TF
-        if( !nh.getParam( "/trikey/base_controller/publish_odom_wheel_tf", vel_filter_tau_ ) ) {
+        if( !nh.getParam( "/trikey/base_controller/publish_odom_wheel_tf", publish_odom_wheel_tf_ ) ) {
           ROS_ERROR("Parameter odom_wheel_tf not specified");
           return false;
         }
