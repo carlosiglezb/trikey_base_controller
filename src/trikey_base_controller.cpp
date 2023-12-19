@@ -234,9 +234,8 @@ namespace trikey_base_controller
         }
 
         vel_filter_->input(raw_velocities_);
-        // Convert encoder ticks to radians
-        
 
+      
         // Read desired twist sent from user/external controller
         CommandTwist curr_cmd_twist = *(command_twist_.readFromRT());
 
