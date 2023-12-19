@@ -289,12 +289,12 @@ namespace trikey_base_controller
           // Feed forward term to compensate for friction
           double cmd = P_term + intergal_term + friction_compensation_;
 
-          // if (cmd > 1.5) {
-          //   cmd = 1.5;
-          // }
-          // else if (cmd < -1.5) {
-          //   cmd = -1.5;
-          // }
+          if (cmd > 1.5) {
+            cmd = 1.49;
+          }
+          else if (cmd < -1.5) {
+            cmd = -1.49;
+          }
 
 
           joints_[j].setCommand(cmd);

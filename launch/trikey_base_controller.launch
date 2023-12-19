@@ -29,7 +29,7 @@
     <!-- Lidar Odom -->
     <group>
       <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
-        <arg name="filter" value="false"/>
+        <arg name="filter" value="true"/>
         <arg name ="rviz" value="false"/>
         <arg name="alpha_value" value="0.1"/>
       </include>
