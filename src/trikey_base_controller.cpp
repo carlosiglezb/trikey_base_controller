@@ -75,7 +75,7 @@ namespace trikey_base_controller
         timestamp_prev_ = 0.0;
 
         //odom TF
-        publish_odom_wheel_tf_ = false;
+        publish_odom_wheel_tf_ = true;
         
 
 
@@ -427,7 +427,7 @@ namespace trikey_base_controller
         if (odom_pub_->trylock())
         {
             odom_pub_->msg_.header.stamp = ros::Time::now();
-            odom_pub_->msg_.header.frame_id = "odom_wheel"; 
+            odom_pub_->msg_.header.frame_id = odom_frame_; 
             // set pose
             odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
             odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
