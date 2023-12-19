@@ -171,11 +171,6 @@ namespace trikey_base_controller
             return false;
         }
 
-        // Wheel Odom TF
-        if( !nh.getParam( "/trikey/base_controller/publish_odom_wheel_tf", publish_odom_wheel_tf_ ) ) {
-          ROS_ERROR("Parameter odom_wheel_tf not specified");
-          return false;
-        }
 
         kinematics_calculator->initialize_H(wheel_radius, distance_wheel_to_chassis);
         cmd_sub_ = nh.subscribe("/trikey/base_controller/cmd_vel", 1, &TrikeyBaseController::cmdVelCallback, this);

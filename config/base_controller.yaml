@@ -21,7 +21,6 @@ trikey:
   # Odometry
   odom_frame: "odom"
   base_frame: "base_link"
-  publish_odom_wheel_tf: false
 
   # Publish all joint states -----------------------------------
 #  joint_state_controller:
