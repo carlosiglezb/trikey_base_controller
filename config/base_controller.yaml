@@ -3,8 +3,8 @@ trikey:
   base_controller:
     type: trikey_base_controller/TrikeyBaseController
     joint_names: [ "wheel0_joint", "wheel1_joint", "wheel2_joint" ]
-    kp_vel_gain: 5.0
-    ki_vel_gain: 10.0
+    kp_vel_gain: 2.5
+    ki_vel_gain: 2.0
 #    damping_gain: 0.0       # this creates a steady state error
     vel_filter_tau: 0.3    # the higher this value is, the higher the overshot
 
