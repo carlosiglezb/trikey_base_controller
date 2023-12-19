@@ -277,6 +277,9 @@ namespace trikey_base_controller
 
           }
 
+          // cmd vel limit
+          cmd_wheel_velocities_[j] = std::max(std::min(cmd_wheel_velocities_[j], 1.48), -1.48);
+
           // P controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
           double P_term = kp_vel_ * vel_error;
@@ -288,13 +291,6 @@ namespace trikey_base_controller
 
           // Feed forward term to compensate for friction
           double cmd = P_term + intergal_term + friction_compensation_;
-
-          if (cmd > 1.5) {
-            cmd = 1.49;
-          }
-          else if (cmd < -1.5) {
-            cmd = -1.49;
-          }
 
 
           joints_[j].setCommand(cmd);
