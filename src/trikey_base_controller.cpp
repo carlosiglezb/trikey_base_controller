@@ -245,9 +245,9 @@ namespace trikey_base_controller
         auto w0_friction_comp = KarnoppCompensator(static_force0_, viscous_force_, vel_deadzone_);
         auto w1_friction_comp = KarnoppCompensator(static_force1_, viscous_force_, vel_deadzone_);
         auto w2_friction_comp = KarnoppCompensator(static_force2_, viscous_force_, vel_deadzone_);
-        auto w0_encoder_conv = EncoderConverter(8500);
-        auto w1_encoder_conv = EncoderConverter(8500);
-        auto w2_encoder_conv = EncoderConverter(8350);
+        // auto w0_encoder_conv = EncoderConverter(8500);
+        // auto w1_encoder_conv = EncoderConverter(8500);
+        // auto w2_encoder_conv = EncoderConverter(8350);
 
         // ROS_INFO("friction compensation");
         // Set wheels torques (TODO add torque sensor readings and/or implement velocity control)
@@ -260,21 +260,21 @@ namespace trikey_base_controller
           if (j == 0) {
             friction_compensation_ = w0_friction_comp.Update(cmd_wheel_velocities_[j]);
    
-            joint_positions_[j] = w0_encoder_conv.ticksToRadians(encoder_ticks_[j]);
-            ROS_INFO("joint 0 position: %f", joint_positions_[j]);
+            // joint_positions_[j] = w0_encoder_conv.ticksToRadians(encoder_ticks_[j]);
+
             
           }
           else if (j == 1) {
             friction_compensation_ = w1_friction_comp.Update(cmd_wheel_velocities_[j]);
 
-            joint_positions_[j] = w1_encoder_conv.ticksToRadians(encoder_ticks_[j]);
-            ROS_INFO("joint 1 position: %f", joint_positions_[j]);
+            // joint_positions_[j] = w1_encoder_conv.ticksToRadians(encoder_ticks_[j]);
+
           }
           else if (j == 2) {
             friction_compensation_ = w2_friction_comp.Update(cmd_wheel_velocities_[j]);
             
-            joint_positions_[j] = w2_encoder_conv.ticksToRadians(encoder_ticks_[j]);
-            ROS_INFO("joint 2 position: %f", joint_positions_[j]);
+            // joint_positions_[j] = w2_encoder_conv.ticksToRadians(encoder_ticks_[j]);
+
           }
 
           // P controller
