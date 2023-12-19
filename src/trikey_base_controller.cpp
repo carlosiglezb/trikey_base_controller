@@ -74,10 +74,10 @@ namespace trikey_base_controller
         // initialize previous timestamp
         timestamp_prev_ = 0.0;
 
-        //odom TF
+        //odom
+        joint_positions_prev_ = Eigen::Vector3d::Zero();
         publish_odom_wheel_tf_ = true;
         
-
 
     }
 
@@ -219,7 +219,6 @@ namespace trikey_base_controller
     void TrikeyBaseController::update(const ros::Time& time, const ros::Duration& period)
     {
 
-    
         // Get time
         unsigned long timestamp_now = time.toNSec();
         float Ts = (timestamp_now - timestamp_prev_) * 1e-9;
@@ -228,11 +227,15 @@ namespace trikey_base_controller
         if (Ts <= 0 || Ts > 0.5) Ts = 1e-3;
 
 
-        // get velocities in vector form for filtering later on
+        // get velocities and encoder reading in vector form for filtering later on
         for(unsigned int j = 0; j < joints_.size(); j++) {
           raw_velocities_[j] = joints_[j].getVelocity();
+          encoder_ticks_[j] = joints_[j].getPosition();
         }
+
         vel_filter_->input(raw_velocities_);
+        // Convert encoder ticks to radians
+        
 
         // Read desired twist sent from user/external controller
         CommandTwist curr_cmd_twist = *(command_twist_.readFromRT());
@@ -243,31 +246,36 @@ namespace trikey_base_controller
         auto w0_friction_comp = KarnoppCompensator(static_force0_, viscous_force_, vel_deadzone_);
         auto w1_friction_comp = KarnoppCompensator(static_force1_, viscous_force_, vel_deadzone_);
         auto w2_friction_comp = KarnoppCompensator(static_force2_, viscous_force_, vel_deadzone_);
+        auto w0_encoder_conv = EncoderConverter(8500);
+        auto w1_encoder_conv = EncoderConverter(8500);
+        auto w2_encoder_conv = EncoderConverter(8350);
+
         // ROS_INFO("friction compensation");
         // Set wheels torques (TODO add torque sensor readings and/or implement velocity control)
         filtered_velocities_ = vel_filter_->output();
 
-
-        //compute odometry and publish odom topic and tf (optional)
-        computeOdometry(filtered_velocities_, wheel_odom_, time);
-        updateOdometry(wheel_odom_, publish_odom_wheel_tf_);
-
   
-
         for(int j = 0; j < joints_.size(); j++)
         {
         // Feedforawrd term to compensate for friction
           if (j == 0) {
             friction_compensation_ = w0_friction_comp.Update(cmd_wheel_velocities_[j]);
-            // ROS_INFO("friction compensation w0: %f", friction_compensation);
+   
+            joint_positions_[j] = w0_encoder_conv.ticksToRadians(encoder_ticks_[j]);
+            ROS_INFO("joint 0 position: %f", joint_positions_[j]);
+            
           }
           else if (j == 1) {
             friction_compensation_ = w1_friction_comp.Update(cmd_wheel_velocities_[j]);
-            // ROS_INFO("friction compensation w1: %f", friction_compensation);
+
+            joint_positions_[j] = w1_encoder_conv.ticksToRadians(encoder_ticks_[j]);
+            ROS_INFO("joint 1 position: %f", joint_positions_[j]);
           }
           else if (j == 2) {
             friction_compensation_ = w2_friction_comp.Update(cmd_wheel_velocities_[j]);
-            // ROS_INFO("friction compensation w2: %f", friction_compensation);
+            
+            joint_positions_[j] = w2_encoder_conv.ticksToRadians(encoder_ticks_[j]);
+            ROS_INFO("joint 2 position: %f", joint_positions_[j]);
           }
 
           // P controller
@@ -302,6 +310,10 @@ namespace trikey_base_controller
           cmd_wheel_vel_pub_->msg_.header.stamp = ros::Time::now();
           cmd_wheel_vel_pub_->unlockAndPublish();
         }
+
+        //compute odometry and publish odom topic and tf (optional)
+        computeOdometry(filtered_velocities_, wheel_odom_, time);
+        updateOdometry(wheel_odom_, publish_odom_wheel_tf_);
 
         // update previous timestamp
         timestamp_prev_ = timestamp_now;
@@ -385,6 +397,56 @@ namespace trikey_base_controller
 
         // Compute twist (linear and angular velocities)
         Eigen::Vector3d twist = kinematics_calculator->get_H_pinv() * filtered_velocities_;
+
+        // Update the twist in the odometry message
+        wheel_odom_.twist.twist.angular.z = twist[0];
+        wheel_odom_.twist.twist.linear.x = twist[1];
+        wheel_odom_.twist.twist.linear.y = twist[2];
+
+        // Update linear position
+        wheel_odom_.pose.pose.position.z = 0.0;  // 2D robot
+        wheel_odom_.pose.pose.position.x += twist[1] * dt;
+        wheel_odom_.pose.pose.position.y += twist[2] * dt;
+        
+        // Update angular position (yaw)
+        yaw_ += twist[0] * dt; 
+
+        // Convert the updated yaw to a quaternion
+        tf2::Quaternion q;
+        q.setRPY(0.0, 0.0, yaw_);
+        // Normalize the quaternion
+        q.normalize();
+
+        // check if quaternion is valid
+        if (!std::isfinite(q.x()) || !std::isfinite(q.y()) || !std::isfinite(q.z()) || !std::isfinite(q.w()))
+        {
+          ROS_WARN_THROTTLE(1.0, "Quaternion is invalid, Ignoring Quaternion update!");
+        }
+        else 
+        {
+          // Update the odometry orientation if the quaternion is valid
+          wheel_odom_.pose.pose.orientation.x = q.x();
+          wheel_odom_.pose.pose.orientation.y = q.y();
+          wheel_odom_.pose.pose.orientation.z = q.z();
+          wheel_odom_.pose.pose.orientation.w = q.w();
+        }
+      
+    }
+
+    void TrikeyBaseController::computeOdometry2(const Eigen::Vector3d &joint_positions_, nav_msgs::Odometry &wheel_odom_, const ros::Time& current_time)
+    {
+        // Static variable to store the last time computeOdometry was called
+        static ros::Time last_time = current_time;
+
+        // Calculate the time difference (dt)
+        double dt = (current_time - last_time).toSec();
+        last_time = current_time;
+
+        Eigen::Vector3d delta_theta = joint_positions_ - joint_positions_prev_;
+        joint_positions_prev_ = joint_positions_;
+
+        // Compute twist (linear and angular velocities)
+        Eigen::Vector3d twist = kinematics_calculator->get_H_pinv() * delta_theta;
 
         // Update the twist in the odometry message
         wheel_odom_.twist.twist.angular.z = twist[0];

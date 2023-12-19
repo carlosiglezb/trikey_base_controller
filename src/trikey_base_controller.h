@@ -98,7 +98,7 @@ namespace trikey_base_controller
         void odometryCallback(const nav_msgs::Odometry& odom);
         void updateOdometry(const nav_msgs::Odometry& odom,bool publish_tf);
         void computeOdometry(const Eigen::Vector3d &filtered_velocities_, nav_msgs::Odometry &wheel_odom_, const ros::Time &current_time);
-        
+        void computeOdometry2(const Eigen::Vector3d &joint_positions_, nav_msgs::Odometry &wheel_odom_,const ros::Time &current_time);
          
         
 
@@ -143,6 +143,9 @@ namespace trikey_base_controller
         Eigen::Vector3d cmd_wheel_velocities_;
         Eigen::Vector3d filtered_velocities_;
         Eigen::Vector3d raw_velocities_;
+        Eigen::Vector3d encoder_ticks_;
+        Eigen::Vector3d joint_positions_;
+        Eigen::Vector3d joint_positions_prev_;
 
         /**
          * Odometry
@@ -161,9 +164,7 @@ namespace trikey_base_controller
         nav_msgs::Odometry wheel_odom_;
         double yaw_;
         bool publish_odom_wheel_tf_;
-
-    
-      
+        
         FirstOrderLowPassFilter *odom_filter_;
         double odom_filter_dt_;
         float lidar_frequency_;

@@ -63,3 +63,12 @@ void FirstOrderLowPassFilter::Input(const Eigen::VectorXd &new_val) {
   prev_val_ = x * new_val + (1. - x) * prev_val_;
 }
 Eigen::VectorXd FirstOrderLowPassFilter::Output() { return prev_val_; }
+
+
+EncoderConverter::EncoderConverter(int tpr, double gearRatio)
+: TPR_(tpr), gearRatio_(gearRatio){}
+
+double EncoderConverter::ticksToRadians(int encoderTicks) const
+{
+  return encoderTicks * 2 * M_PI / (TPR_ * gearRatio_);
+}

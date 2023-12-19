@@ -6,6 +6,7 @@
 #define SRC_FILTERS_HPP
 
 #include <eigen3/Eigen/Dense>
+#include <cmath>
 
 /// class ExponentialMovingAverageFilter
 // https://github.com/stephane-caron/lipm_walking_controller/blob/29b3583e3be91ed6336df25434b6baea1fc9f650/include/lipm_walking/utils/ExponentialMovingAverage.h
@@ -50,6 +51,18 @@ private:
   double cut_off_period_ = 0.;
   double dt_ = 0.005;
   int dim_ = 3;
+};
+
+class EncoderConverter {
+  public:
+    EncoderConverter(int tpr, double gearRatio = 1.0);
+
+    double ticksToRadians(int encoderTicks) const;
+
+  private:
+    int TPR_;
+    double gearRatio_;
+
 };
 
 #endif //SRC_FILTERS_HPP
