@@ -73,6 +73,9 @@ namespace trikey_base_controller
 
         // initialize previous timestamp
         timestamp_prev_ = 0.0;
+
+        //odom TF
+        publish_odom_wheel_tf_ = false;
         
 
 
@@ -167,6 +170,13 @@ namespace trikey_base_controller
             ROS_ERROR("Parameter wheel_radius not specified");
             return false;
         }
+
+        // Wheel Odom TF
+        if( !nh.getParam( "/trikey/base_controller/publish_odom_wheel_tf", vel_filter_tau_ ) ) {
+          ROS_ERROR("Parameter odom_wheel_tf not specified");
+          return false;
+        }
+
         kinematics_calculator->initialize_H(wheel_radius, distance_wheel_to_chassis);
         cmd_sub_ = nh.subscribe("/trikey/base_controller/cmd_vel", 1, &TrikeyBaseController::cmdVelCallback, this);
         kp_vel_sub_ = nh.subscribe("/trikey/base_controller/kp_vel_gain", 1, &TrikeyBaseController::cmdKpVelCallback, this);
@@ -245,7 +255,7 @@ namespace trikey_base_controller
 
         //compute odometry and publish odom topic and tf (optional)
         computeOdometry(filtered_velocities_, wheel_odom_, time);
-        updateOdometry(wheel_odom_, true);
+        updateOdometry(wheel_odom_, publish_odom_wheel_tf_);
 
   
 
@@ -422,7 +432,7 @@ namespace trikey_base_controller
         if (odom_pub_->trylock())
         {
             odom_pub_->msg_.header.stamp = ros::Time::now();
-            odom_pub_->msg_.header.frame_id = odom_frame_; 
+            odom_pub_->msg_.header.frame_id = "odom_wheel"; 
             // set pose
             odom_pub_->msg_.pose.pose.position.x = odometry_.pose.pose.position.x;
             odom_pub_->msg_.pose.pose.position.y = odometry_.pose.pose.position.y;
@@ -437,6 +447,8 @@ namespace trikey_base_controller
         }
 
         // Publish tf for base w.r.t. world
+        if (publish_tf){
+
           if(tf_odom_pub_->trylock())
           {
               geometry_msgs::TransformStamped& odom_frame = tf_odom_pub_->msg_.transforms[0];
@@ -452,7 +464,7 @@ namespace trikey_base_controller
               odom_frame.transform.rotation.w = odometry_.pose.pose.orientation.w;
               tf_odom_pub_->unlockAndPublish();
           }
-        
+        }  
     } 
 
     void TrikeyBaseController::filterOdometry(const nav_msgs::Odometry& odometry_)

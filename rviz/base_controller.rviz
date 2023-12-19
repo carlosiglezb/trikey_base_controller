@@ -7,10 +7,8 @@ Panels:
         - /Global Options1
         - /Status1
         - /LaserScan1
-        - /RobotModel1/Status1
         - /TF1
         - /TF1/Frames1
-        - /Odometry1
       Splitter Ratio: 0.5
     Tree Height: 549
   - Class: rviz/Selection
@@ -489,41 +487,6 @@ Visualization Manager:
                 {}
       Update Interval: 0
       Value: true
-    - Angle Tolerance: 0.10000000149011612
-      Class: rviz/Odometry
-      Covariance:
-        Orientation:
-          Alpha: 0.5
-          Color: 255; 255; 127
-          Color Style: Unique
-          Frame: Local
-          Offset: 1
-          Scale: 1
-          Value: true
-        Position:
-          Alpha: 0.30000001192092896
-          Color: 204; 51; 204
-          Scale: 1
-          Value: true
-        Value: true
-      Enabled: true
-      Keep: 100
-      Name: Odometry
-      Position Tolerance: 0.10000000149011612
-      Queue Size: 10
-      Shape:
-        Alpha: 1
-        Axes Length: 1
-        Axes Radius: 0.10000000149011612
-        Color: 255; 25; 0
-        Head Length: 0.30000001192092896
-        Head Radius: 0.10000000149011612
-        Shaft Length: 1
-        Shaft Radius: 0.05000000074505806
-        Value: Arrow
-      Topic: /odom
-      Unreliable: false
-      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -552,7 +515,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 4.359679222106934
+      Distance: 3.6584348678588867
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -588,5 +551,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1200
-  X: 348
-  Y: 107
+  X: 364
+  Y: 123
