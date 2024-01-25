@@ -33,7 +33,7 @@
  *********************************************************************/
 
 //
-// Created by Carlos Gonzalez on 11/1/21.
+// Created by Carlos Gonzalez and DK on 11/1/21.
 //
 
 #include "trikey_base_controller.h"
@@ -278,7 +278,7 @@ namespace trikey_base_controller
           }
 
           // cmd vel limit
-          cmd_wheel_velocities_[j] = std::max(std::min(cmd_wheel_velocities_[j], 1.48), -1.48);
+          cmd_wheel_velocities_[j] = std::max(std::min(cmd_wheel_velocities_[j], 1.5), -1.5);
 
           // P controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
