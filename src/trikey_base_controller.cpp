@@ -278,7 +278,7 @@ namespace trikey_base_controller
           }
 
           // cmd vel limit
-          cmd_wheel_velocities_[j] = std::max(std::min(cmd_wheel_velocities_[j], 1.5), -1.5);
+          cmd_wheel_velocities_[j] = std::max(std::min(cmd_wheel_velocities_[j], 1.6), -1.6);
 
           // P controller
           double vel_error = cmd_wheel_velocities_[j] - filtered_velocities_[j];
