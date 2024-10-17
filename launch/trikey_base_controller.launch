@@ -27,13 +27,13 @@
   <group if="$(arg real_robot)">
 
     <!-- Lidar Odom -->
-    <!-- <group>
+    <group>
       <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
         <arg name="filter" value="false"/>
         <arg name ="rviz" value="false"/>
    
       </include>
-    </group> -->
+    </group>
 
 
 

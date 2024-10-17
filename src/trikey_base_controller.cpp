@@ -313,7 +313,7 @@ namespace trikey_base_controller
 
         //compute odometry and publish odom topic and tf (optional)
         computeOdometry(filtered_velocities_, wheel_odom_, time);
-        updateOdometry(wheel_odom_, publish_odom_wheel_tf_);
+       // updateOdometry(wheel_odom_, publish_odom_wheel_tf_);
 
         // update previous timestamp
         timestamp_prev_ = timestamp_now;
