@@ -3,7 +3,7 @@
   <!-- Argu,emts -->
   <arg name="real_robot" default="true"/>
   <arg name="xbox" default="false"/>
-  <arg name="rviz" default="true"/>
+  <arg name="rviz" default="false"/>
   <arg name="joy_config" default="xbox" />
   <arg name="joy_dev" default="/dev/input/js0" />
   <arg name="config_filepath" default="$(find bumpybot_teleop)/config/$(arg joy_config).config.yaml" />
@@ -27,23 +27,27 @@
   <group if="$(arg real_robot)">
 
     <!-- Lidar Odom -->
-    <group>
+    <!-- <group>
       <include file="$(find bumpybot_navigation)/launch/icp_odom.launch">
         <arg name="filter" value="false"/>
         <arg name ="rviz" value="false"/>
-   
+  
       </include>
-    </group>
+    </group> -->
 
-
+    <!-- Nav Stack -->
+    <!-- <group>
+      <include file="$(find bumpybot_navigation)/launch/nav_stack.launch">
+      </include>
+    </group> -->
 
     <node name="controller_spawner2" pkg="controller_manager" type="spawner" respawn="false"
       output="screen" args="trikey/base_controller"/>
 
-    <node name="robot_state_publisher2" pkg="robot_state_publisher" type="robot_state_publisher"
+    <!-- <node name="robot_state_publisher2" pkg="robot_state_publisher" type="robot_state_publisher"
       respawn="false" output="screen">
       <remap from="/joint_states" to="/joint_states" />
-    </node>  
+    </node>   -->
   </group>
 
   <group unless="$(arg real_robot)">
