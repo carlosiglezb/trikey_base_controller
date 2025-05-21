@@ -251,7 +251,14 @@ namespace trikey_base_controller
         // Set wheels torques (TODO add torque sensor readings and/or implement velocity control)
         filtered_velocities_ = vel_filter_->output();
 
-  
+         // scale wheel velocities evenly to ensure desired twist is acheived while limiting maximum wheel velocity
+        double max_w = cmd_wheel_velocities_.cwiseAbs().maxCoeff(); // find the largest absolute command
+        const double limit = 1.5;
+        if (max_w > limit) {
+          double s = limit / max_w;
+          cmd_wheel_velocities_ *= s;      // scale all three wheels equally
+        }
+        
         for(int j = 0; j < joints_.size(); j++)
         {
         // Feedforawrd term to compensate for friction
